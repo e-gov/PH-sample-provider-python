@@ -87,7 +87,7 @@ jobs:
         run: |
           export DOCKER_CONTENT_TRUST=1
           export DOCKER_CONTENT_TRUST_SERVER=https://notary.docker.io
-          docker trust sign ghcr.io/${{ env.IMAGE_NAME }}/your-image-name:tag
+          docker trust sign ghcr.io/${{ github.repository }}/${{ env.IMAGE_NAME }}:tag
 
 #      # Sign the resulting Docker image digest except on PRs.
 #      # This will only write to the public Rekor transparency log when the Docker
