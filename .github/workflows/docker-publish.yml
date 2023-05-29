@@ -70,16 +70,33 @@ jobs:
         run: |
           docker-compose push
 
-      - name: Install cosign
-        uses: sigstore/cosign-installer@v2.0.0
-          
-      - name: Write signing key to disk
-        run: 'echo "$KEY" > cosign.key'
-        shell: bash
-        env:
-          KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+      - name: Write private key to file
+        run: |
+          echo "$KEY" > cosign.key
+          chmod 400 cosign.key
 
-      - name: Sign the published Docker Image
-        env:
-          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
-        run: cosign sign --key cosign.key ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:${{ github.run_id }}
+      - name: Sign Docker images
+        id: sign
+        run: |
+          export COSIGN_EXPERIMENTAL=1
+          export COSIGN_REPOSITORY_PASSPHRASE=${{ secrets.COSIGN_PASSWORD }}
+          export COSIGN_TUF_SERVER=https://tuf.sigstore.dev
+          sigstore/cosign sign -key cosign.key -a ghcr.io/${{ github.repository_owner }}/your-image-name:tag
+
+      - name: Show signed tag
+        run: |
+          echo "Signed tag: ghcr.io/${{ github.repository_owner }}/your-image-name:tag"
+
+#      - name: Install cosign
+#        uses: sigstore/cosign-installer@v2.0.0
+#
+#      - name: Write signing key to disk
+#        run: 'echo "$KEY" > cosign.key'
+#        shell: bash
+#        env:
+#          KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+#
+#      - name: Sign the published Docker Image
+#        env:
+#          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+#        run: cosign sign --key cosign.key ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:${{ github.run_id }}
