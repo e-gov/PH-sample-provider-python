@@ -71,32 +71,15 @@ jobs:
           docker-compose push
 
       - name: Install cosign
-        run: |
-          curl -sSL https://github.com/sigstore/cosign/releases/latest/download/cosign-linux-amd64 > cosign
-          chmod +x cosign
-          sudo mv cosign /usr/local/bin/
+        uses: sigstore/cosing-installer@v2.0.0
           
       - name: Write signing key to disk
         run: 'echo "$KEY" > cosign.key'
         shell: bash
         env:
-          KEY: ${{ secrets.COSIGN_PASSPHRASE }}
+          KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
 
-      - name: Sign Docker images
-        id: sign
-        run: |
-          export COSIGN_EXPERIMENTAL=1
-          export COSIGN_REPOSITORY_PASSPHRASE=${{ secrets.COSIGN_PASSPHRASE }}
-          export COSIGN_TUF_SERVER=https://tuf.sigstore.dev
-          cosign sign --key /path/to/private.key ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:tag
-          echo "::set-output name=signed_tag::ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:tag"
-
-      - name: Show signed tag
-        run: |
-          echo "Signed tag: ${{ steps.sign.outputs.signed_tag }}"
-
-      - name: Push signed Docker image to GHCR
-        run: |
-          docker pull ${{ steps.sign.outputs.signed_tag }}
-          docker tag ${{ steps.sign.outputs.signed_tag }} ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:tag
-          docker push ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:tag
+      - name: Sign the published Docker Image
+        env:
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+        run: cosign sign --key cosign.key $ {{ env.REGISTRY }}/${{ github.actor }}/{{ env.IMAGE_NAME }}:${{ github.run_id }}
