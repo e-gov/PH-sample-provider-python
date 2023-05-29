@@ -75,6 +75,12 @@ jobs:
           curl -sSL https://github.com/sigstore/cosign/releases/latest/download/cosign-linux-amd64 > cosign
           chmod +x cosign
           sudo mv cosign /usr/local/bin/
+          
+      - name: Write signing key to disk
+        run: 'echo "$KEY" > cosign.key'
+        shell: bash
+        env:
+          KEY: ${{ secrets.COSIGN_PASSPHRASE }}
 
       - name: Sign Docker images
         id: sign
