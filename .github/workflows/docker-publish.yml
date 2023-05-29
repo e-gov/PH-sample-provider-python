@@ -82,7 +82,7 @@ jobs:
 
       - name: Sign Docker images
         env:
-          COSIGN_PASSWORD: ${{ env.COSIGN_PASSWORD }}
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
         run: |
           cosign sign --key cosign.key ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:tag
 
