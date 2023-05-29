@@ -82,7 +82,7 @@ jobs:
           export COSIGN_EXPERIMENTAL=1
           export COSIGN_REPOSITORY_PASSPHRASE=${{ secrets.COSIGN_PASSPHRASE }}
           export COSIGN_TUF_SERVER=https://tuf.sigstore.dev
-          cosign sign -key /path/to/private.key ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:tag
+          cosign sign --key /path/to/private.key ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:tag
           echo "::set-output name=signed_tag::ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:tag"
 
       - name: Show signed tag
