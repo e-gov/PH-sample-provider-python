@@ -71,7 +71,7 @@ jobs:
           docker-compose push
 
       - name: Install cosign
-        uses: sigstore/cosing-installer@v2.0.0
+        uses: sigstore/cosign-installer@v2.0.0
           
       - name: Write signing key to disk
         run: 'echo "$KEY" > cosign.key'
