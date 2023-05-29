@@ -81,11 +81,9 @@ jobs:
           KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
 
       - name: Sign Docker images
-        id: sign
+        env:
+          COSIGN_PASSWORD: ${{ env.COSIGN_PASSWORD }}
         run: |
-          export COSIGN_EXPERIMENTAL=1
-          export COSIGN_REPOSITORY_PASSPHRASE=${{ secrets.COSIGN_PASSWORD }}
-          export COSIGN_TUF_SERVER=https://tuf.sigstore.dev
           cosign sign --key cosign.key ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:tag
 
       - name: Show signed tag
