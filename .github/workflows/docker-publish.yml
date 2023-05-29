@@ -76,7 +76,9 @@ jobs:
       - name: Write private key to file
         run: |
           echo "$KEY" > cosign.key
-          chmod 400 cosign.key
+        shell: bash
+        env:
+          KEY: $ {{ secrets.COSIGN_PRIVATE_KEY }}
 
       - name: Sign Docker images
         id: sign
