@@ -70,6 +70,10 @@ jobs:
         run: |
           docker-compose push
 
+      - name: Install sigstore/cosign
+        run: |
+          curl -sSL https://raw.githubusercontent.com/sigstore/cosign/main/hack/install.sh | bash
+
       - name: Write private key to file
         run: |
           echo "$KEY" > cosign.key
