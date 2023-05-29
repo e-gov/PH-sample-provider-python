@@ -17,7 +17,7 @@ services:
       container_name: "paasuke_provider_adapter_api"
       build:
         context: .
-        dockerfile: Dockerfile.provider_adapter_api
+        dockerfile: Dockerfile
       depends_on:
         - postgres
       ports:
