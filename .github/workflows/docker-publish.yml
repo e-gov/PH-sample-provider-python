@@ -18,6 +18,7 @@ env:
   REGISTRY: ghcr.io
   # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ github.repository }}
+  REPOSITORY_NAME: ${{ github.event.repository.name }}
 
 
 jobs:
@@ -87,7 +88,7 @@ jobs:
         run: |
           export DOCKER_CONTENT_TRUST=1
           export DOCKER_CONTENT_TRUST_SERVER=https://notary.docker.io
-          docker trust sign ghcr.io/${{ env.IMAGE_NAME }}:tag
+          docker trust sign ghcr.io/${{ env.REPOSITORY_NAME }}:tag
 
 #      # Sign the resulting Docker image digest except on PRs.
 #      # This will only write to the public Rekor transparency log when the Docker
