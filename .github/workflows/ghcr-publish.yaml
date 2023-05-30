@@ -5,7 +5,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }} # github.repository as <account>/<repo>
+  IMAGE_NAME: artyomdevnow/${{ github.event.repository.name }} # <account>/<repo>
 
 jobs:
   build_and_publish:
