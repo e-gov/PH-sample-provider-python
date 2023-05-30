@@ -9,9 +9,9 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.actor }}/${{ github.event.repository.name }} # <account>/<repo>
   ACCOUNT: artyomdevnow
   DOCKER_USER: artjomnortal
+  IMAGE_NAME: ${{ env.ACCOUNT }}/${{ github.event.repository.name }}
 
 jobs:
   build_and_publish:
