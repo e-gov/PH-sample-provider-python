@@ -1,4 +1,5 @@
 name: Publish image to Docker hub
+
 on:
   [workflow_dispatch]
 
