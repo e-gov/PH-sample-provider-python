@@ -1,25 +1,19 @@
-name: Docker image to GHCR
+name: Docker image CI for GHCR
 
 on:
-  push:
-    branches: [ "main" ]
-    tags: [ 'v*.*.*' ]
-  pull_request:
-    branches: [ "main" ]
+  push
 
 env:
   REGISTRY: ghcr.io
-  DOCKER_USER: ${{ vars.DOCKER_USER }}
-  ACCOUNT: ${{ vars.ACCOUNT }}
-  IMAGE_NAME: ${{ vars.ACCOUNT }}/${{ github.event.repository.name }}
+  IMAGE_NAME: artyomdevnow/${{ github.event.repository.name }}
 
 jobs:
   build_and_publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Build and push the image to GitHub Container Registry
+      - name: Build and push the image
         run: |
-          docker login -u ${{ env.DOCKER_USER }} -p ${{ secrets.PH_TOKEN }} ghcr.io
+          docker login -u artyomnortal -p ${{ secrets.PH_TOKEN }} ghcr.io
           docker build . -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
