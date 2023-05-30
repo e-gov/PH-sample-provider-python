@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v1
         with:
@@ -20,6 +21,10 @@ jobs:
           password: ${{ secrets.PH_TOKEN }}
 
       - name: Build and push container
+        env:
+          IMAGE_TAG: ghcr.io/${{ IMAGE_NAME }}:latest
         run: |
           docker-compose build
           docker-compose push
+          docker tag <your_image_name> $IMAGE_TAG
+          docker push $IMAGE_TAG
