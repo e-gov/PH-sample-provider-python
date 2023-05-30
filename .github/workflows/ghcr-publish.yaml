@@ -15,5 +15,5 @@ jobs:
       - name: Build and push the image
         run: |
           docker login -u artyomnortal -p ${{ secrets.PH_TOKEN }} ghcr.io
-          docker build . -t ghcr.io/${{ env.IMAGE_NAME }}:latest
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          docker-compose build . -t ghcr.io/${{ env.IMAGE_NAME }}:latest
+          docker-compose push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
