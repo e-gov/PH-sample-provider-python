@@ -11,7 +11,7 @@ env:
   REGISTRY: ghcr.io
   ACCOUNT: artyomdevnow
   DOCKER_USER: artjomnortal
-  IMAGE_NAME: ${{ env.ACCOUNT }}/${{ github.event.repository.name }}
+  IMAGE_NAME: ${{ ACCOUNT }}/${{ github.event.repository.name }}
 
 jobs:
   build_and_publish:
