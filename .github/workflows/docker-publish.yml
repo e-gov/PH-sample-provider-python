@@ -75,11 +75,11 @@ jobs:
         with:
             registry: ghcr.io
             username: ${{ github.actor }}
-            password: ${{ secrets.GITHUB_TOKEN }}
+            password: ${{ secrets.TOKEN }}
 
       - name: Tag and push container to GitHub Container Registry
         run: |
-          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:${{ github.sha }}
+          IMAGE_NAME=ghcr.io/${{ github.repository }}:${{ github.sha }}
           docker-compose build
           docker-compose push
           docker tag $IMAGE_NAME $IMAGE_NAME
