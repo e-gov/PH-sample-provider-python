@@ -31,6 +31,7 @@ def make_success_response(response_data, status_code):
 def create_error_handler(status_code):
     def error_handler(e):
         return jsonify(e.to_dict()), status_code
+
     return error_handler
 
 
@@ -153,7 +154,8 @@ def create_app():
         except psycopg2.errors.RaiseException as e:
             app.logger.exception(str(e))
             error_config = app.config['SETTINGS']['errors']['unprocessable_request']
-            raise UnprocessableRequestError('Unprocessable request while deleting mandate. Something went wrong.', error_config)
+            raise UnprocessableRequestError('Unprocessable request while deleting mandate. Something went wrong.',
+                                            error_config)
         if deleted:
             return make_success_response([], 200)
         error_config = app.config['SETTINGS']['errors']['mandate_not_found']
@@ -199,16 +201,23 @@ def create_app():
         roles = []
         roles_data = get_roles_pg(db)
         mapped = {
-            'assignable_by': 'assignableBy',
             'code': 'code',
-            'can_sub_delegate': 'canSubDelegate',
             'delegate_can_equal_to_representee': 'delegateCanEqualToRepresentee',
-            'deletable_by_delegate': 'deletableByDelegate',
             'modified': 'modified',
+            'validity_period_from_not_in_future': 'validityPeriodFromNotInFuture',
+            'validity_period_through_must_be_undefined': 'validityPeriodThroughMustBeUndefined',
             'assignable_only_if_representee_has_role_in': 'assignableOnlyIfRepresenteeHasRoleIn',
             'delegate_type': 'delegateType',
+            'can_sub_delegate': 'canSubDelegate',
+            'addable_by': 'addableBy',
+            'adding_must_be_signed': 'addingMustBeSigned',
+            'assignable_by': 'assignableBy',
+            'waivable_by': 'waivableBy',
+            'waiving_must_be_signed': 'waivingMustBeSigned',
+            'withdrawable_by': 'withdrawableBy',
+            'withdrawal_must_be_signed': 'withdrawalMustBeSigned',
             'deletable_by': 'deletableBy',
-            'modified': 'modified',
+            'deletable_by_delegate': 'deletableByDelegate',
             'representee_type': 'representeeType',
             'visible': 'visible',
         }
@@ -219,15 +228,21 @@ def create_app():
                 if (value is not None and key in mapped)
             }
             role_item['title'] = {
-                    'en': role['title_en'],
-                    'et': role['title_et'],
-                    'ru': role['title_ru']
-                }
+                'en': role['title_en'],
+                'et': role['title_et'],
+                'ru': role['title_ru']
+            }
+            role_item['description'] = {
+                'en': role['description_en'],
+                'et': role['description_et'],
+                'ru': role['description_ru']
+            }
             if role_item.get('modified'):
                 role_item['modified'] = role_item['modified'].isoformat()
             roles.append(role_item)
 
         return make_success_response(roles, 200)
+
     return app
 
 
