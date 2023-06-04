@@ -225,7 +225,7 @@ def create_app():
             role_item = {
                 mapped[key]: value
                 for key, value in role.items()
-                if (value is not None and key in mapped)
+                if (value is not None and (type(value) != list or type(value) == list and value) and key in mapped)
             }
             role_item['title'] = {
                 'en': role['title_en'],
