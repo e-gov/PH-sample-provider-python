@@ -281,3 +281,65 @@ def test_representee_mandates_filter_by_delegate(client):
             }
         },
     ]
+
+def test_roles(client):
+    response = client.get('roles')
+    assert response.status_code == 200
+    assert response.json == [
+        {
+            'addableBy': ['BR_REPRIGHT:SOLEREP'],
+            'addingMustBeSigned': False,
+            'assignableBy': ['BR_REPRIGHT:SOLEREP'],
+            'canSubDelegate': False,
+            'code': 'ANNUAL_REPORTS:ENTER',
+            'delegateCanEqualToRepresentee': False,
+            'deletableBy': ['BR_REPRIGHT:SOLEREP'],
+            'deletableByDelegate': True,
+            'description': {
+                'en': 'Omab õigust sisestada majandusaasta aruande andmeid',
+                'et': 'Has the right to enter annual report data',
+                'ru': 'Omab õigust sisestada majandusaasta aruande andmeid (rus)'
+            },
+            'modified': '2023-05-31T12:00:00',
+            'representeeType': ['LEGAL_PERSON'],
+            'title': {
+                'en': 'Andmesisestaja',
+                'et': 'Data entry specialist',
+                'ru': 'Andmesisestaja (rus)'
+            },
+            'validityPeriodFromNotInFuture': True,
+            'validityPeriodThroughMustBeUndefined': True,
+            'visible': True, 'waivableBy': ['NAT_REPRIGHT:SOLEREP'],
+            'waivingMustBeSigned': False,
+            'withdrawableBy': ['BR_REPRIGHT:SOLEREP'],
+            'withdrawalMustBeSigned': False
+        },
+        {
+            'addableBy': ['BR_REPRIGHT:SOLEREP'],
+            'addingMustBeSigned': False,
+            'assignableBy': ['BR_REPRIGHT:SOLEREP'],
+            'canSubDelegate': False,
+            'code': 'ANNUAL_REPORTS:ENTER_AND_SUBMIT',
+            'delegateCanEqualToRepresentee': False,
+            'deletableByDelegate': True,
+            'description': {
+                'en': 'Omab õigust sisestada majandusaasta aruande andmeid ja esitada aruanne registrile',
+                'et': 'Has the right to enter annual report data and submit annual reports to the business registry',
+                'ru': 'Omab õigust sisestada majandusaasta aruande andmeid ja esitada aruanne registrile (rus)'
+            },
+            'modified': '2023-05-31T12:00:00',
+            'representeeType': ['LEGAL_PERSON'],
+            'title': {
+                'en': 'Esitamisõigusega andmesisestaja',
+                'et': 'Data entry and report submitting specialist',
+                'ru': 'Esitamisõigusega andmesisestaja (rus)'
+            },
+            'validityPeriodFromNotInFuture': True,
+            'validityPeriodThroughMustBeUndefined': True,
+            'visible': True,
+            'waivableBy': ['NAT_REPRIGHT:SOLEREP'],
+            'waivingMustBeSigned': False,
+            'withdrawableBy': ['BR_REPRIGHT:SOLEREP'],
+            'withdrawalMustBeSigned': False
+        }
+    ]
