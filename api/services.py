@@ -30,7 +30,6 @@ def get_mandates(db, representee_identifier=None, delegate_identifier=None, subd
     rows = result.fetchall()
     return [dict(row._mapping) for row in rows]
 
-
 def extract_representee_mandates(data):
     grouped = defaultdict(lambda: {
         'representee_type': None,
