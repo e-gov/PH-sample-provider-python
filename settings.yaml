@@ -16,14 +16,6 @@ errors:
         et: Volituse kustutamine ebaõnnestus
         ru: Volituse kustutamine ebaõnnestus (ru)
       type: test-type-for-representee-not-found
-    delegate_not_found:
-      reference: http://example-delegate-not-found-guidence.com
-      title: Delegate was not found
-      translation:
-        en: Delegate was not found
-        et: Volituse kustutamine ebaõnnestus
-        ru: Volituse kustutamine ebaõnnestus (ru)
-      type: test-type-for-delegate-not-found
     mandate_data_invalid:
       reference: http://example-mandate-data-invalid-guidence.com
       title: Mandate data is invalid

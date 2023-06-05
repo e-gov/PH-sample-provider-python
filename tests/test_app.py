@@ -34,16 +34,10 @@ def test_delegate_format_validation_failed(client, config):
     }
 
 
-def test_delegate_not_found_validation_failed(client, config):
-    response = client.get('/delegates/EE4q486846/representees/mandates')
-    assert response.status_code == 404
-    error_config = config['SETTINGS']['errors']['delegate_not_found']
-    assert response.json == {
-        'href': error_config['reference'],
-        'title': 'Delegate not found',
-        'translation': error_config['translation'],
-        'type': error_config['type']
-    }
+def test_delegate_not_found_empty_list(client, config):
+    response = client.get('/delegates/EE3333333/representees/mandates')
+    assert response.status_code == 200
+    assert response.json == []
 
 
 def test_delegate_mandates(client):

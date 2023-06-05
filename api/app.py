@@ -68,14 +68,12 @@ def create_app():
     def get_delegates_representees_mandates(delegate_id):
         xroad_user_id = request.headers.get('X-Road-UserId')
         app.logger.info(f'X-Road-UserId: {xroad_user_id} Getting delegate mandates')
-
         error_config = app.config['SETTINGS']['errors']['legal_person_format_validation_failed']
-
         validate_person_company_code(delegate_id, error_config)
+
         data_rows = get_mandates(db, delegate_identifier=delegate_id)
         if not data_rows:
-            error_config = app.config['SETTINGS']['errors']['delegate_not_found']
-            raise DelegateNotFound('Delegate not found', error_config)
+            return make_success_response(data_rows, 200)
         delegate, representees = extract_delegates_mandates(data_rows)
         response_data = serialize_delegate_mandates(delegate, representees, app.config['SETTINGS'])
         return make_success_response(response_data, 200)
