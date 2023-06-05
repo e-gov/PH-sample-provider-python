@@ -22,9 +22,9 @@ SELECT
     mandate.original_mandate_id,
     mandate.document_uuid,
     mandate.can_display_document_to_delegate,
-    CONCAT('/', 'v1/nss/', LEFT(mandate.role, POSITION(':' IN mandate.role) - 1), '/representees/', mandate.representee_id, '/delegates/', mandate.delegate_id, '/mandates/', mandate.id) AS link_delete,
+    CONCAT('/v1/representees/', mandate.representee_id, '/delegates/', mandate.delegate_id, '/mandates/', mandate.id) AS link_delete,
     CASE
-        WHEN mandate.can_sub_delegate IS TRUE THEN CONCAT('/', 'v1/nss/', LEFT(mandate.role, POSITION(':' IN mandate.role) - 1), '/representees/', mandate.representee_id, '/delegates/', mandate.delegate_id, '/mandates/', mandate.id, '/subdelegates')
+        WHEN mandate.can_sub_delegate IS TRUE THEN CONCAT('/v1/representees/', mandate.representee_id, '/delegates/', mandate.delegate_id, '/mandates/', mandate.id, '/subdelegates')
         ELSE mandate.link_add_sub_delegate
     END AS link_add_sub_delegate
 FROM mandate

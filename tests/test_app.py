@@ -54,15 +54,15 @@ def test_delegate_mandates(client):
             'mandates': [
                 {
                     'links': {
-                        'delete': '/v1/nss/TEST/representees/100004/delegates/100002/mandates/150000',
+                        'delete': '/v1/representees/100004/delegates/100002/mandates/150000',
                         'origin': 'http://example.com/',
-                        'addSubDelegate': '/v1/nss/TEST/representees/100004/delegates/100002/mandates/150000/subdelegates'
+                        'addSubDelegate': '/v1/representees/100004/delegates/100002/mandates/150000/subdelegates'
                     },
                     'role': 'TEST:ROLE1'
                 },
                 {
                     'links': {
-                        'delete': '/v1/nss/TEST/representees/100004/delegates/100002/mandates/150001',
+                        'delete': '/v1/representees/100004/delegates/100002/mandates/150001',
                         'origin': 'http://example.com/'
                     },
                     'role': 'TEST:ROLE1',
@@ -87,9 +87,9 @@ def test_delegate_mandates(client):
             'mandates': [
                 {
                     'links': {
-                        'delete': '/v1/nss/TEST6/representees/100005/delegates/100002/mandates/150005',
+                        'delete': '/v1/representees/100005/delegates/100002/mandates/150005',
                         'origin': 'http://example.com/',
-                        'addSubDelegate': '/v1/nss/TEST6/representees/100005/delegates/100002/mandates/150005/subdelegates'
+                        'addSubDelegate': '/v1/representees/100005/delegates/100002/mandates/150005/subdelegates'
                     },
                     'role': 'TEST6:ROLE1:ROLE2',
                     'validityPeriod': {
@@ -170,15 +170,15 @@ def test_representee_mandates(client):
             'mandates': [
                 {
                     'links': {
-                        'delete': '/v1/nss/TEST/representees/100004/delegates/100002/mandates/150000',
+                        'delete': '/v1/representees/100004/delegates/100002/mandates/150000',
                         'origin': 'http://example.com/',
-                        'addSubDelegate': '/v1/nss/TEST/representees/100004/delegates/100002/mandates/150000/subdelegates'
+                        'addSubDelegate': '/v1/representees/100004/delegates/100002/mandates/150000/subdelegates'
                     },
                     'role': 'TEST:ROLE1'
                 },
                 {
                     'links': {
-                        'delete': '/v1/nss/TEST/representees/100004/delegates/100002/mandates/150001',
+                        'delete': '/v1/representees/100004/delegates/100002/mandates/150001',
                         'origin': 'http://example.com/'
                     },
                     'role': 'TEST:ROLE1',
@@ -203,9 +203,9 @@ def test_representee_mandates(client):
             'mandates': [
                 {
                     'links': {
-                        'delete': '/v1/nss/TEST2/representees/100004/delegates/100001/mandates/150003',
+                        'delete': '/v1/representees/100004/delegates/100001/mandates/150003',
                         'origin': 'http://example.com/',
-                        'addSubDelegate': '/v1/nss/TEST2/representees/100004/delegates/100001/mandates/150003/subdelegates'
+                        'addSubDelegate': '/v1/representees/100004/delegates/100001/mandates/150003/subdelegates'
                     },
                     'role': 'TEST2:ROLE2:ROLE6',
                     'validityPeriod': {
@@ -215,9 +215,9 @@ def test_representee_mandates(client):
                 },
                 {
                     'links': {
-                        'delete': '/v1/nss/TEST3/representees/100004/delegates/100001/mandates/150004',
+                        'delete': '/v1/representees/100004/delegates/100001/mandates/150004',
                         'origin': 'http://example.com/',
-                        'addSubDelegate': '/v1/nss/TEST3/representees/100004/delegates/100001/mandates/150004/subdelegates'
+                        'addSubDelegate': '/v1/representees/100004/delegates/100001/mandates/150004/subdelegates'
                     },
                     'role': 'TEST3:ROLE12:ROLE100',
                     'validityPeriod': {
@@ -252,9 +252,9 @@ def test_representee_mandates_filter_by_delegate(client):
             'mandates': [
                 {
                     'links': {
-                        'delete': '/v1/nss/TEST2/representees/100004/delegates/100001/mandates/150003',
+                        'delete': '/v1/representees/100004/delegates/100001/mandates/150003',
                         'origin': 'http://example.com/',
-                        'addSubDelegate': '/v1/nss/TEST2/representees/100004/delegates/100001/mandates/150003/subdelegates'
+                        'addSubDelegate': '/v1/representees/100004/delegates/100001/mandates/150003/subdelegates'
                     },
                     'role': 'TEST2:ROLE2:ROLE6',
                     'validityPeriod': {
@@ -264,9 +264,9 @@ def test_representee_mandates_filter_by_delegate(client):
                 },
                 {
                     'links': {
-                        'delete': '/v1/nss/TEST3/representees/100004/delegates/100001/mandates/150004',
+                        'delete': '/v1/representees/100004/delegates/100001/mandates/150004',
                         'origin': 'http://example.com/',
-                        'addSubDelegate': '/v1/nss/TEST3/representees/100004/delegates/100001/mandates/150004/subdelegates'
+                        'addSubDelegate': '/v1/representees/100004/delegates/100001/mandates/150004/subdelegates'
                     },
                     'role': 'TEST3:ROLE12:ROLE100',
                     'validityPeriod': {

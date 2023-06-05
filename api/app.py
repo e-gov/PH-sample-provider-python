@@ -139,16 +139,16 @@ def create_app():
         return make_success_response([], 201)
 
     @app.route(
-        '/nss/<string:ns>/representees/<string:representee_id>/delegates/<string:delegate_id>/mandates/<string:mandate_id>',
-        methods=['DELETE']
+        '/representees/<string:representee_id>/delegates/<string:delegate_id>/mandates/<string:mandate_id>',
+        methods=['PUT']
     )
-    def delete_mandate(ns, representee_id, delegate_id, mandate_id):
+    def delete_mandate(representee_id, delegate_id, mandate_id):
         xroad_user_id = request.headers.get('X-Road-UserId')
         app.logger.info(f'X-Road-UserId: {xroad_user_id} Deleting mandate')
 
         db_uri = app.config['SQLALCHEMY_DATABASE_URI']
         try:
-            deleted = delete_mandate_pg(db_uri, ns, representee_id, delegate_id, mandate_id)
+            deleted = delete_mandate_pg(db_uri, representee_id, delegate_id, mandate_id)
         except psycopg2.errors.RaiseException as e:
             app.logger.exception(str(e))
             error_config = app.config['SETTINGS']['errors']['unprocessable_request']
@@ -160,10 +160,10 @@ def create_app():
         raise MandateNotFound('Mandate to delete was not found', error_config)
 
     @app.route(
-        '/nss/<string:ns>/representees/<string:representee_id>/delegates/<string:delegate_id>/mandates/<string:mandate_id>/subdelegates',
+        '/representees/<string:representee_id>/delegates/<string:delegate_id>/mandates/<string:mandate_id>/subdelegates',
         methods=['POST']
     )
-    def post_subdelegate_mandate(ns, representee_id, delegate_id, mandate_id):
+    def post_subdelegate_mandate(representee_id, delegate_id, mandate_id):
         xroad_user_id = request.headers.get('X-Road-UserId')
         xroad_represented_party = request.headers.get('X-Road-Represented-Party')
         app.logger.info(f'X-Road-UserId: {xroad_user_id} Creating subdelegate')

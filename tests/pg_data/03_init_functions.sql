@@ -61,7 +61,6 @@ END;
 $$ LANGUAGE PLPGSQL;
 
 CREATE OR REPLACE FUNCTION function_delete_mandate(
-    p_namespace TEXT,
     p_representee_identifier TEXT,
     p_delegate_id TEXT, -- change to text type
     p_mandate_id TEXT -- change to text type
@@ -86,8 +85,7 @@ BEGIN
     SET deleted = TRUE
     WHERE id = CAST(p_mandate_id as INTEGER)
         AND representee_id = v_representee_id
-        AND delegate_id = CAST(p_delegate_id AS INTEGER)
-        AND (mandate.role LIKE (p_namespace || ':%') OR mandate.role = p_namespace);
+        AND delegate_id = CAST(p_delegate_id AS INTEGER);
     IF FOUND THEN
           RETURN TRUE;
       ELSE

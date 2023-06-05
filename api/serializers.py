@@ -73,16 +73,14 @@ def serialize_mandate(representee, delegate, mandate, settings):
 
 
 def set_subdelegate_link(mandate, representee, delegate):
-    ns = mandate['role'].split(':')[0]
     representee_id = representee['representee_id']
     delegate_id = delegate['delegate_id']
     mandate_id = mandate['mandate_id']
-    return f'/v1/nss/{ns}/representees/{representee_id}/delegates/{delegate_id}/mandates/{mandate_id}/subdelegates'
+    return f'/v1/representees/{representee_id}/delegates/{delegate_id}/mandates/{mandate_id}/subdelegates'
 
 
 def set_delete_link(mandate, representee, delegate):
-    ns = mandate['role'].split(':')[0] if mandate.get('role') else ''
     representee_id = representee['representee_id']
     delegate_id = delegate['delegate_id']
     mandate_id = mandate['mandate_id']
-    return f'/v1/nss/{ns}/representees/{representee_id}/delegates/{delegate_id}/mandates/{mandate_id}'
+    return f'/v1/representees/{representee_id}/delegates/{delegate_id}/mandates/{mandate_id}'
