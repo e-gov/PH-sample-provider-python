@@ -99,10 +99,8 @@ def create_app():
             delegate_identifier=delegate_identifier,
             subdelegated_by_identifier=subdelegated_by_identifier
         )
-        # does representee really uknown ?
         if not data_rows:
-            error_config = app.config['SETTINGS']['errors']['representee_not_found']
-            raise RepresenteeNotFound('Representee not found', error_config)
+            return make_success_response([], 200)
 
         representee, delegates = extract_representee_mandates(data_rows)
         response_data = serialize_representee_mandates(representee, delegates, app.config['SETTINGS'])

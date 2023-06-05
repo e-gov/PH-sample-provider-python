@@ -119,16 +119,10 @@ def test_representee_format_validation_failed(client, config):
     }
 
 
-def test_representee_not_found_validation_failed(client, config):
+def test_representee_not_found_empty_list(client, config):
     response = client.get('/representees/EE4q486846/delegates/mandates')
-    assert response.status_code == 404
-    error_config = config['SETTINGS']['errors']['representee_not_found']
-    assert response.json == {
-        'href': error_config['reference'],
-        'title': 'Representee not found',
-        'translation': error_config['translation'],
-        'type': error_config['type']
-    }
+    assert response.status_code == 200
+    assert response.json == []
 
 
 @pytest.mark.parametrize('query_param', [

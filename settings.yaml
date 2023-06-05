@@ -8,14 +8,6 @@ errors:
         et: Volituse kustutamine ebaõnnestus
         ru: Volituse kustutamine ebaõnnestus (ru)
       type: test-type-for-legal-person-validation
-    representee_not_found:
-      reference: http://example-representee-not-found-guidence.com
-      title: Representee was not found
-      translation:
-        en: Representee was not found
-        et: Volituse kustutamine ebaõnnestus
-        ru: Volituse kustutamine ebaõnnestus (ru)
-      type: test-type-for-representee-not-found
     mandate_data_invalid:
       reference: http://example-mandate-data-invalid-guidence.com
       title: Mandate data is invalid
