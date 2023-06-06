@@ -16,6 +16,7 @@ def app():
 def client(app):
     return app.test_client()
 
+
 @pytest.fixture()
 def config(app):
     return app.config
@@ -161,37 +162,41 @@ def test_representee_mandates(client):
     assert response.status_code == 200
     assert response.json == [
         {
-            'delegate': {
-                'firstName': 'EE Person Name 1',
-                'identifier': 'EE1111111',
-                'surname': 'EE Person Surname 1',
-                'type': 'LEGAL_PERSON'
-            },
+            'delegate':
+                {
+                    'identifier': 'EE1111111',
+                    'legalName': 'EE Legal Person 1',
+                    'type': 'LEGAL_PERSON'
+                },
             'mandates': [
                 {
-                    'links': {
-                        'delete': '/v1/nss/TEST/representees/100004/delegates/100002/mandates/150000',
-                        'origin': 'http://example.com/',
-                        'addSubDelegate': '/v1/nss/TEST/representees/100004/delegates/100002/mandates/150000/subdelegates'
-                    },
+                    'links':
+                        {
+                            'addSubDelegate': '/v1/nss/TEST/representees/100004/delegates/100002/mandates/150000/subdelegates',
+                            'delete': '/v1/nss/TEST/representees/100004/delegates/100002/mandates/150000',
+                            'origin': 'http://example.com/'
+                        },
                     'role': 'TEST:ROLE1'
                 },
                 {
-                    'links': {
-                        'delete': '/v1/nss/TEST/representees/100004/delegates/100002/mandates/150001',
-                        'origin': 'http://example.com/'
-                    },
+                    'links':
+                        {
+                            'delete': '/v1/nss/TEST/representees/100004/delegates/100002/mandates/150001',
+                            'origin': 'http://example.com/'
+                        },
                     'role': 'TEST:ROLE1',
-                    'validityPeriod': {
-                        'from': '2021-01-01'
-                    }
+                    'validityPeriod':
+                        {
+                            'from': '2021-01-01'
+                        }
                 }
             ],
-            'representee': {
-                'identifier': 'EE33333333',
-                'legalName': 'EE Legal Person 3',
-                'type': 'LEGAL_PERSON'
-            }
+            'representee':
+                {
+                    'identifier': 'EE33333333',
+                    'legalName': 'EE Legal Person 3',
+                    'type': 'LEGAL_PERSON'
+                }
         },
         {
             'delegate': {
@@ -202,35 +207,40 @@ def test_representee_mandates(client):
             },
             'mandates': [
                 {
-                    'links': {
-                        'delete': '/v1/nss/TEST2/representees/100004/delegates/100001/mandates/150003',
-                        'origin': 'http://example.com/',
-                        'addSubDelegate': '/v1/nss/TEST2/representees/100004/delegates/100001/mandates/150003/subdelegates'
-                    },
+                    'links':
+                        {
+                            'addSubDelegate': '/v1/nss/TEST2/representees/100004/delegates/100001/mandates/150003/subdelegates',
+                            'delete': '/v1/nss/TEST2/representees/100004/delegates/100001/mandates/150003',
+                            'origin': 'http://example.com/'
+                        },
                     'role': 'TEST2:ROLE2:ROLE6',
-                    'validityPeriod': {
-                        'from': '2020-01-01',
-                        'through': '2030-12-31'
-                    }
+                    'validityPeriod':
+                        {
+                            'from': '2020-01-01',
+                            'through': '2030-12-31'
+                        }
                 },
                 {
-                    'links': {
-                        'delete': '/v1/nss/TEST3/representees/100004/delegates/100001/mandates/150004',
-                        'origin': 'http://example.com/',
-                        'addSubDelegate': '/v1/nss/TEST3/representees/100004/delegates/100001/mandates/150004/subdelegates'
-                    },
+                    'links':
+                        {
+                            'addSubDelegate': '/v1/nss/TEST3/representees/100004/delegates/100001/mandates/150004/subdelegates',
+                            'delete': '/v1/nss/TEST3/representees/100004/delegates/100001/mandates/150004',
+                            'origin': 'http://example.com/'
+                        },
                     'role': 'TEST3:ROLE12:ROLE100',
-                    'validityPeriod': {
-                        'through': '2050-12-31'
+                    'validityPeriod':
+                        {
+                            'through': '2050-12-31'
                         }
-                    }
+                }
             ],
-            'representee': {
-                'identifier': 'EE33333333',
-                'legalName': 'EE Legal Person 3',
-                'type': 'LEGAL_PERSON'
-            }
-        },
+            'representee':
+                {
+                    'identifier': 'EE33333333',
+                    'legalName': 'EE Legal Person 3',
+                    'type': 'LEGAL_PERSON'
+                }
+        }
     ]
 
 
@@ -271,8 +281,8 @@ def test_representee_mandates_filter_by_delegate(client):
                     'role': 'TEST3:ROLE12:ROLE100',
                     'validityPeriod': {
                         'through': '2050-12-31'
-                        }
                     }
+                }
             ],
             'representee': {
                 'identifier': 'EE33333333',
@@ -281,6 +291,7 @@ def test_representee_mandates_filter_by_delegate(client):
             }
         },
     ]
+
 
 def test_roles(client):
     response = client.get('roles')
