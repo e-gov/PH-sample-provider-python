@@ -23,22 +23,13 @@ class CompanyCodeInvalid(ErrorConfigBase):
         self.status_code = status_code or CompanyCodeInvalid.status_code
 
 
-class RepresenteeNotFound(ErrorConfigBase):
-    status_code = 404
+class ActionInvalid(ErrorConfigBase):
+    status_code = 501
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         status_code = kwargs.get('status_code')
-        self.status_code = status_code or RepresenteeNotFound.status_code
-
-
-class DelegateNotFound(ErrorConfigBase):
-    status_code = 404
-
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-        status_code = kwargs.get('status_code')
-        self.status_code = status_code or DelegateNotFound.status_code
+        self.status_code = status_code or ActionInvalid.status_code
 
 
 class MandateDataInvalid(ErrorConfigBase):

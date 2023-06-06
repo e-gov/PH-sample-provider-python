@@ -4,10 +4,10 @@ import yaml
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 
-from api.exceptions import (CompanyCodeInvalid, DelegateNotFound,
+from api.exceptions import (CompanyCodeInvalid,
                             ErrorConfigBase, MandateDataInvalid,
                             MandateNotFound, MandateSubdelegateDataInvalid,
-                            RepresenteeNotFound, UnprocessableRequestError)
+                            UnprocessableRequestError, ActionInvalid)
 from api.serializers import (serialize_delegate_mandates,
                              serialize_representee_mandates)
 from api.services import (create_mandate_pg, delete_mandate_pg,
@@ -46,11 +46,10 @@ def create_app():
     db.init_app(app)
     app.config['SETTINGS'] = parse_settings(app.config['SETTINGS_PATH'])
 
+    app.errorhandler(ActionInvalid)(create_error_handler(501))
     app.errorhandler(CompanyCodeInvalid)(create_error_handler(400))
     app.errorhandler(MandateDataInvalid)(create_error_handler(400))
     app.errorhandler(MandateSubdelegateDataInvalid)(create_error_handler(400))
-    app.errorhandler(RepresenteeNotFound)(create_error_handler(404))
-    app.errorhandler(DelegateNotFound)(create_error_handler(404))
     app.errorhandler(MandateNotFound)(create_error_handler(404))
     app.errorhandler(UnprocessableRequestError)(create_error_handler(422))
 
@@ -100,7 +99,7 @@ def create_app():
             subdelegated_by_identifier=subdelegated_by_identifier
         )
         if not data_rows:
-            return make_success_response([], 200)
+            return make_success_response(data_rows, 200)
 
         representee, delegates = extract_representee_mandates(data_rows)
         response_data = serialize_representee_mandates(representee, delegates, app.config['SETTINGS'])
@@ -143,6 +142,10 @@ def create_app():
     def delete_mandate(representee_id, delegate_id, mandate_id):
         xroad_user_id = request.headers.get('X-Road-UserId')
         app.logger.info(f'X-Road-UserId: {xroad_user_id} Deleting mandate')
+        data = request.json
+        if data['action'] != 'DELETE':
+            error_config = app.config['SETTINGS']['errors']['action_invalid']
+            raise ActionInvalid("Action invalid", error_config)
 
         db_uri = app.config['SQLALCHEMY_DATABASE_URI']
         try:

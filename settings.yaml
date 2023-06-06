@@ -8,6 +8,14 @@ errors:
         et: Volituse kustutamine ebaõnnestus
         ru: Volituse kustutamine ebaõnnestus (ru)
       type: test-type-for-legal-person-validation
+    action_invalid:
+      reference: http://example-delegate-not-found-guidence.com
+      title: Action is invalid
+      translation:
+        en: Action is invalid
+        et: Action is invalid (et)
+        ru: Action is invalid (ru)
+      type: test-type-for-action-invalid
     mandate_data_invalid:
       reference: http://example-mandate-data-invalid-guidence.com
       title: Mandate data is invalid
