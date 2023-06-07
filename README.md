@@ -1,12 +1,15 @@
 
 # Adapter application (Python)
 
-This application is an adapter for Pääsuke.
+This application is an adapter for Pääsuke written in Python Flask.
 This is used by a party who keeps mandates on their side but offers a standard service
 for Pääsuke for it to query mandates.
 
 The idea is that there is a Postgres database that keeps the data.
 Into that Postgres database we create view and procedures that this app calls.
+
+## Sequence diagram illustrating the application
+![Sequence diagram](doc/sequence-diagram-pr.png)
 
 
 ## How this application differs from mocks
@@ -49,10 +52,10 @@ Check configurarion example example.cfg.
 ## How to run API app with docker-compose
     `docker-compose up -d`
 
-Access API on http://localhost:5002
+Access API on http://localhost:5002/v1
 
 ```
-curl --location 'http://localhost:5002/representees/EE33333333/delegates/mandates' \
+curl --location 'http://localhost:5002/v1/representees/EE33333333/delegates/mandates' \
 --header 'X-Road-UserId: test-header-xroad-userid' \
 --header 'X-Road-Represented-Party: TEST-Represented-Party' \
 --header 'X-Road-Id: TEST-ID-12345'
@@ -79,7 +82,7 @@ Point gunicorn to WSGI entrypoint `wsgi.py`
 
 ## Endpoints
 
-### `GET /representees/<str:representee>/delegates/mandates`
+### `GET /v1/representees/<str:representee>/delegates/mandates`
 
 Accepts representee identifier as parameter in path
 Raises `400` error if identifier does not validate
@@ -90,14 +93,14 @@ Uses PG view `representee_mandates_view`
 
 Example:
 ```
-curl --location 'http://localhost:5002/representees/EE33333333/delegates/mandates' \
+curl --location 'http://localhost:5002/v1/representees/EE33333333/delegates/mandates' \
 --header 'X-Road-UserId: test-header-xroad-userid' \
 --header 'X-Road-Represented-Party: test-header-xroad-represented-party' \
 --header 'X-Road-Id: test-header-xroad-id'
 ```
 
 
-### `GET /delegates/<str:delegate>/representees/mandates`
+### `GET /v1/delegates/<str:delegate>/representees/mandates`
 
 Accepts delegate identifier as parameter in path
 Raises `400` error if identifier does not validate
@@ -108,7 +111,7 @@ Uses PG view `representee_mandates_view`
 
 Example:
 ```
-curl --location 'http://127.0.0.1:5002/delegates/EE1111111/representees/mandates' \
+curl --location 'http://127.0.0.1:5002/v1/delegates/EE1111111/representees/mandates' \
 --header 'X-Road-UserId: Test User Id'
 ```
 
@@ -119,11 +122,11 @@ Uses PG view `roles_view`
 
 Example:
 
-`curl --location 'http://localhost:5002/roles'`
+`curl --location 'http://localhost:5002/v1/roles`
 
 
 
-### `POST /representees/<str:representee>/delegates/<str:delegate>/mandates`
+### `POST /v1/representees/<str:representee>/delegates/<str:delegate>/mandates`
 
 Accepts repreentee and delegate identifiers as path parameters
 Raises `400` error if payload data is not valid or identifiers does not validate
@@ -133,7 +136,7 @@ Return empty list with status code `201` in case of success
 Example of successful request:
 
 ```
-curl --location 'http://127.0.0.1:5002/representees/EE12345678/delegates/EE38302250123/mandates' \
+curl --location 'http://127.0.0.1:5002/v1/representees/EE12345678/delegates/EE38302250123/mandates' \
 --header 'Content-Type: application/json' \
 --header 'X-Road-UserId: LT123456' \
 --header 'X-Road-Represented-Party: LV1234566' \
@@ -171,7 +174,7 @@ curl --location 'http://127.0.0.1:5002/representees/EE12345678/delegates/EE38302
 ```
 
 
-### `POST /nss/<str:ns>/representees/<representeeId>/delegates/<delegateId>/mandates/<mandateId>/subdelegates`
+### `POST /v1/representees/<representeeId>/delegates/<delegateId>/mandates/<mandateId>/subdelegates`
 
 Accepts `namespace`, `representeeId`, `delegateId`, `mandateId` as parameters in path.
 Raises `404` error if mandate does not exist
@@ -180,7 +183,7 @@ Returns empty list with status code `200` in success case
 
 Example of successful request:
 ```
-curl --location 'http://127.0.0.1:5002/nss/TEST2/representees/EE33333333/delegates/100001/mandates/150003/subdelegates' \
+curl --location 'http://127.0.0.1:5002/v1/representees/EE33333333/delegates/100001/mandates/150003/subdelegates' \
 --header 'Content-Type: application/json' \
 --header 'X-Road-UserId: EE23232323' \
 --header 'X-Road-Represented-Party: EE2323224444' \
@@ -209,7 +212,7 @@ curl --location 'http://127.0.0.1:5002/nss/TEST2/representees/EE33333333/delegat
 ```
 
 
-### `DELETE /nss/<str:ns>/representees/<representeeId>/delegates/<delegateId>/mandates/<mandateId>`
+### `DELETE /v1/representees/<representeeId>/delegates/<delegateId>/mandates/<mandateId>`
 
 Accepts `namespace`, `representeeId`, `delegateId`, `mandateId` as parameters in path.
 Raises `404` error if mandate does not exist
@@ -219,7 +222,7 @@ Returns empty list with status code `200` in success case
 Example of successful request:
 
 ```
-curl --location --request DELETE 'http://127.0.0.1:5002/nss/TEST2/representees/EE33333333/delegates/100001/mandates/150003'
+curl --location --request DELETE 'http://127.0.0.1:5002/v1/representees/EE33333333/delegates/100001/mandates/150003'
 ```
 
 
