@@ -210,7 +210,7 @@ curl --location 'http://127.0.0.1:5002/v1/representees/EE33333333/delegates/1000
 ```
 
 
-### `DELETE /v1/representees/<representeeId>/delegates/<delegateId>/mandates/<mandateId>`
+### `PUT /v1/representees/<representeeId>/delegates/<delegateId>/mandates/<mandateId>`
 
 Accepts `representeeId`, `delegateId`, `mandateId` as parameters in the path.
 Raises `404` error if the mandate does not exist
@@ -220,7 +220,23 @@ Returns empty list with status code `200` in success case
 Example of successful request:
 
 ```
-curl --location --request DELETE 'http://127.0.0.1:5002/v1/representees/EE33333333/delegates/100001/mandates/150003'
+curl --location --request PUT 'http://127.0.0.1:5002/v1/representees/EE33333333/delegates/100001/mandates/150003' \
+--header 'Content-Type: application/json' \
+--data '{
+  "action": "DELETE",
+  "authorizations": [
+    {
+      "userIdentifier": "EE39912310123",
+      "hasRole": "BR_REPRIGHT:SOLEREP"
+    }
+  ],
+  "document": {
+    "uuid": "5b72e01c-fa7f-479c-b014-cc19efe5b732",
+    "singleDelegate": true
+  }
+}'
+
+
 ```
 
 
