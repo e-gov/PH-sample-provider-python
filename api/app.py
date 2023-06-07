@@ -25,6 +25,8 @@ db = SQLAlchemy()
 def make_success_response(response_data, status_code):
     response = jsonify(response_data)
     response.status_code = status_code
+    if app.config['ALLOW_ANY_ORIGIN']:
+        response.headers['Access-Control-Allow-Origin'] = '*'
     return response
 
 
@@ -61,7 +63,7 @@ def create_app():
             error_config,
             500
         )
-        app.logger.exception('Unexpected error ocurred: %s', e)
+        app.logger.exception('Unexpected error occurred: %s', e)
         return jsonify(base.to_dict()), 500
 
     @app.route('/v1/delegates/<string:delegate_id>/representees/mandates', methods=['GET'])
