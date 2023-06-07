@@ -25,6 +25,8 @@ db = SQLAlchemy()
 def make_success_response(response_data, status_code):
     response = jsonify(response_data)
     response.status_code = status_code
+    if app.config['ALLOW_ANY_ORIGIN']:
+        response.headers['Access-Control-Allow-Origin'] = '*'
     return response
 
 
@@ -61,10 +63,10 @@ def create_app():
             error_config,
             500
         )
-        app.logger.exception('Unexpected error ocurred: %s', e)
+        app.logger.exception('Unexpected error occurred: %s', e)
         return jsonify(base.to_dict()), 500
 
-    @app.route('/delegates/<string:delegate_id>/representees/mandates', methods=['GET'])
+    @app.route('/v1/delegates/<string:delegate_id>/representees/mandates', methods=['GET'])
     def get_delegates_representees_mandates(delegate_id):
         xroad_user_id = request.headers.get('X-Road-UserId')
         app.logger.info(f'X-Road-UserId: {xroad_user_id} Getting delegate mandates')
@@ -78,7 +80,7 @@ def create_app():
         response_data = serialize_delegate_mandates(delegate, representees, app.config['SETTINGS'])
         return make_success_response(response_data, 200)
 
-    @app.route('/representees/<string:representee_id>/delegates/mandates', methods=['GET'])
+    @app.route('/v1/representees/<string:representee_id>/delegates/mandates', methods=['GET'])
     def get_representees_delegates_mandates(representee_id):
         xroad_user_id = request.headers.get('X-Road-UserId')
         app.logger.info(f'X-Road-UserId: {xroad_user_id} Getting representee mandates')
@@ -105,7 +107,7 @@ def create_app():
         response_data = serialize_representee_mandates(representee, delegates, app.config['SETTINGS'])
         return make_success_response(response_data, 200)
 
-    @app.route('/representees/<string:representee_id>/delegates/<string:delegate_id>/mandates', methods=['POST'])
+    @app.route('/v1/representees/<string:representee_id>/delegates/<string:delegate_id>/mandates', methods=['POST'])
     def post_representee_delegate_mandate(representee_id, delegate_id):
         xroad_user_id = request.headers.get('X-Road-UserId')
         xroad_represented_party = request.headers.get('X-Road-Represented-Party')
@@ -136,7 +138,7 @@ def create_app():
         return make_success_response([], 201)
 
     @app.route(
-        '/representees/<string:representee_id>/delegates/<string:delegate_id>/mandates/<string:mandate_id>',
+        '/v1/representees/<string:representee_id>/delegates/<string:delegate_id>/mandates/<string:mandate_id>',
         methods=['PUT']
     )
     def delete_mandate(representee_id, delegate_id, mandate_id):
@@ -161,7 +163,7 @@ def create_app():
         raise MandateNotFound('Mandate to delete was not found', error_config)
 
     @app.route(
-        '/representees/<string:representee_id>/delegates/<string:delegate_id>/mandates/<string:mandate_id>/subdelegates',
+        '/v1/representees/<string:representee_id>/delegates/<string:delegate_id>/mandates/<string:mandate_id>/subdelegates',
         methods=['POST']
     )
     def post_subdelegate_mandate(representee_id, delegate_id, mandate_id):
@@ -195,7 +197,7 @@ def create_app():
             raise MandateNotFound('Mandate to delete was not found', error_config)
         return make_success_response([], 200)
 
-    @app.route('/roles', methods=['GET'])
+    @app.route('/v1/roles', methods=['GET'])
     def get_roles():
         roles = []
         roles_data = get_roles_pg(db)

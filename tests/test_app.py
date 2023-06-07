@@ -23,7 +23,7 @@ def config(app):
 
 
 def test_delegate_format_validation_failed(client, config):
-    response = client.get('/delegates/1EE1234567/representees/mandates')
+    response = client.get('/v1/delegates/1EE1234567/representees/mandates')
     assert response.status_code == 400
     error_config = config['SETTINGS']['errors']['legal_person_format_validation_failed']
 
@@ -36,13 +36,13 @@ def test_delegate_format_validation_failed(client, config):
 
 
 def test_delegate_not_found_empty_list(client, config):
-    response = client.get('/delegates/EE3333333/representees/mandates')
+    response = client.get('/v1/delegates/EE3333333/representees/mandates')
     assert response.status_code == 200
     assert response.json == []
 
 
 def test_delegate_mandates(client):
-    response = client.get('/delegates/EE1111111/representees/mandates')
+    response = client.get('/v1/delegates/EE1111111/representees/mandates')
     assert response.status_code == 200
     assert response.json == [
         {
@@ -108,7 +108,7 @@ def test_delegate_mandates(client):
 
 
 def test_representee_format_validation_failed(client, config):
-    response = client.get('representees/1EE33333333/delegates/mandates')
+    response = client.get('/v1/representees/1EE33333333/delegates/mandates')
     assert response.status_code == 400
     error_config = config['SETTINGS']['errors']['legal_person_format_validation_failed']
 
@@ -121,7 +121,7 @@ def test_representee_format_validation_failed(client, config):
 
 
 def test_representee_not_found_empty_list(client, config):
-    response = client.get('/representees/EE4q486846/delegates/mandates')
+    response = client.get('/v1/representees/EE4q486846/delegates/mandates')
     assert response.status_code == 200
     assert response.json == []
 
@@ -136,7 +136,7 @@ def test_representee_not_found_empty_list(client, config):
 ])
 def test_company_format_validation_failed(client, query_param, config):
     response = client.get(
-        'representees/EE33333333/delegates/mandates',
+        'v1/representees/EE33333333/delegates/mandates',
         query_string=query_param
 
     )
@@ -152,7 +152,7 @@ def test_company_format_validation_failed(client, query_param, config):
 
 
 def test_representee_mandates(client):
-    response = client.get('representees/EE33333333/delegates/mandates')
+    response = client.get('v1/representees/EE33333333/delegates/mandates')
     assert response.status_code == 200
     assert response.json == [
         {
@@ -240,7 +240,7 @@ def test_representee_mandates(client):
 
 def test_representee_mandates_filter_by_delegate(client):
     response = client.get(
-        'representees/EE33333333/delegates/mandates',
+        'v1/representees/EE33333333/delegates/mandates',
         query_string={'delegate': 'LT1234568'}
 
     )
@@ -288,7 +288,7 @@ def test_representee_mandates_filter_by_delegate(client):
 
 
 def test_roles(client):
-    response = client.get('roles')
+    response = client.get('v1/roles')
     assert response.status_code == 200
     assert response.json == [
         {
