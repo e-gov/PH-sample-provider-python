@@ -41,7 +41,7 @@ This database has a few tables to sore information about mandates.
     `pip install -r requirements.txt`
     `export PYTHONPATH=$PWD`
 
-Check configurarion example example.cfg.
+Check configuration example in example.cfg.
 
     `cp config/example.cfg config/dev.cfg`
 
@@ -63,7 +63,7 @@ curl --location 'http://localhost:5002/v1/representees/EE33333333/delegates/mand
 
 ## Tests
 
-Tests are using PG database running on docker container and fixture data inside.
+Tests are using the Postgres database running on a Docker container and fixture data inside.
     `python3 -m venv venv`
     `source venv/bin/activate`
     `pip install -r requirements.txt`
@@ -86,10 +86,9 @@ Point gunicorn to WSGI entrypoint `wsgi.py`
 
 Accepts representee identifier as parameter in path
 Raises `400` error if identifier does not validate
-Raises `404` error if such representee is not found.
-Returns `MandateTriple` with status code `200` if representee has valid mandates
-Returns empty list if representee has no valid mandates.
-Uses PG view `representee_mandates_view`
+Returns the list of `MandateTriplet`s with status code `200` if representee has valid mandates
+Returns empty list if the representee has no valid mandates or the representee is unknown.
+Uses Postgres view `representee_mandates_view`
 
 Example:
 ```
@@ -104,10 +103,9 @@ curl --location 'http://localhost:5002/v1/representees/EE33333333/delegates/mand
 
 Accepts delegate identifier as parameter in path
 Raises `400` error if identifier does not validate
-Raises `404` error if such delegate is not found.
-Returns `MandateTriple` with status code `200` if delegate has valid mandates
-Returns empty list if delegate has no valid mandates.
-Uses PG view `representee_mandates_view`
+Returns the list of `MandateTriplet`s with status code `200` if delegate has valid mandates
+Returns an empty list if delegate has no valid mandates or the delegate is unknown.
+Uses Postgres view `representee_mandates_view`
 
 Example:
 ```
@@ -117,8 +115,8 @@ curl --location 'http://127.0.0.1:5002/v1/delegates/EE1111111/representees/manda
 
 ### `GET /roles`
 
-Returns list of role
-Uses PG view `roles_view`
+Get a list of roles
+Selects data from Postgres view `roles_view`
 
 Example:
 
@@ -129,9 +127,9 @@ Example:
 ### `POST /v1/representees/<str:representee>/delegates/<str:delegate>/mandates`
 
 Accepts repreentee and delegate identifiers as path parameters
-Raises `400` error if payload data is not valid or identifiers does not validate
-Raises `422` error if PG function `function_create_mandate` does not validate input data.
-Return empty list with status code `201` in case of success
+Raises `400` error if payload data is not valid or identifiers are not valid
+Raises `422` error if Postgres function `function_create_mandate` does not validate input data.
+Return an empty list with status code `201` in case of success
 
 Example of successful request:
 
@@ -176,9 +174,9 @@ curl --location 'http://127.0.0.1:5002/v1/representees/EE12345678/delegates/EE38
 
 ### `POST /v1/representees/<representeeId>/delegates/<delegateId>/mandates/<mandateId>/subdelegates`
 
-Accepts `namespace`, `representeeId`, `delegateId`, `mandateId` as parameters in path.
-Raises `404` error if mandate does not exist
-Raises `422` error if PG function `function_insert_mandate_subdelegate` does not validate input data.
+Accepts `representeeId`, `delegateId`, `mandateId` as parameters in the path.
+Raises `404` error if the mandate does not exist
+Raises `422` error if Postgres function `function_insert_mandate_subdelegate` does not validate input data.
 Returns empty list with status code `200` in success case
 
 Example of successful request:
@@ -214,9 +212,9 @@ curl --location 'http://127.0.0.1:5002/v1/representees/EE33333333/delegates/1000
 
 ### `DELETE /v1/representees/<representeeId>/delegates/<delegateId>/mandates/<mandateId>`
 
-Accepts `namespace`, `representeeId`, `delegateId`, `mandateId` as parameters in path.
-Raises `404` error if mandate does not exist
-Raises `422` error if PG function `function_delete_mandate` does not validate input data.
+Accepts `representeeId`, `delegateId`, `mandateId` as parameters in the path.
+Raises `404` error if the mandate does not exist
+Raises `422` error if Postgres function `function_delete_mandate` does not validate input data.
 Returns empty list with status code `200` in success case
 
 Example of successful request:
