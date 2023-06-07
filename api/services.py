@@ -254,7 +254,7 @@ def create_mandate_pg(uri, data):
     conn.close()
 
 
-def delete_mandate_pg(uri, namespace, representee_identifier,
+def delete_mandate_pg(uri, representee_identifier,
                       delegate_identifier, mandate_identifier):
     conn = psycopg2.connect(uri)
     conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
@@ -262,7 +262,6 @@ def delete_mandate_pg(uri, namespace, representee_identifier,
     cur = conn.cursor()
     cur.callproc(
         'function_delete_mandate', [
-            namespace,
             representee_identifier,
             delegate_identifier,
             mandate_identifier,
