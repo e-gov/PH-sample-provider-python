@@ -22,14 +22,6 @@ from api.validators import (validate_add_mandate_payload,
 db = SQLAlchemy()
 
 
-def make_success_response(response_data, status_code):
-    response = jsonify(response_data)
-    response.status_code = status_code
-    if app.config['ALLOW_ANY_ORIGIN']:
-        response.headers['Access-Control-Allow-Origin'] = '*'
-    return response
-
-
 def create_error_handler(status_code):
     def error_handler(e):
         return jsonify(e.to_dict()), status_code
@@ -54,6 +46,13 @@ def create_app():
     app.errorhandler(MandateSubdelegateDataInvalid)(create_error_handler(400))
     app.errorhandler(MandateNotFound)(create_error_handler(404))
     app.errorhandler(UnprocessableRequestError)(create_error_handler(422))
+
+    def make_success_response(response_data, status_code):
+        response = jsonify(response_data)
+        response.status_code = status_code
+        if app.config['ALLOW_ANY_ORIGIN']:
+            response.headers['Access-Control-Allow-Origin'] = '*'
+        return response
 
     @app.errorhandler(Exception)
     def handle_unhandled_error(e):
