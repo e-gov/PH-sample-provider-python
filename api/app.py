@@ -111,7 +111,7 @@ def create_app():
     def post_representee_delegate_mandate(representee_id, delegate_id):
         xroad_user_id = request.headers.get('X-Road-UserId')
         xroad_represented_party = request.headers.get('X-Road-Represented-Party')
-        app.logger.info(f'X-Road-UserId: {xroad_user_id} Creating mandate')
+        app.logger.info(f'X-Road-UserId: {xroad_user_id} is about to add a mandate')
 
         error_config = app.config['SETTINGS']['errors']['legal_person_format_validation_failed']
         [
@@ -178,9 +178,11 @@ def create_app():
             error_config = app.config['SETTINGS']['errors']['legal_person_format_validation_failed']
             validate_person_company_code(data['subDelegate']['identifier'], error_config)
         data_to_insert = extract_mandate_subdelegate_data(data)
-        data_to_insert['representee_identifier'] = representee_id
-        data_to_insert['delegate_identifier'] = delegate_id
-        data_to_insert['mandate_identifier'] = mandate_id
+
+        data_to_insert['representee_id'] = representee_id
+        data_to_insert['delegate_id'] = delegate_id
+        data_to_insert['mandate_id'] = mandate_id
+
         data_to_insert['data_created_by'] = xroad_user_id
         data_to_insert['data_created_by_represented_person'] = xroad_represented_party
         try:

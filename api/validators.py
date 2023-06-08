@@ -29,6 +29,7 @@ add_mandate_subdelegate_schema = {
             "firstName": {"type": "string"},
             "identifier": {"type": "string", "required": True},
             "surname": {"type": "string"},
+            "legalName": {"type": "string"},
             "type": {"type": "string", "required": True},
         }
     },
@@ -46,9 +47,10 @@ add_mandate_triplet_schema = {
             "type": "dict",
             "required": True,
             "schema": {
-                "firstName": {"type": "string", "required": False},
                 "identifier": {"type": "string", "required": True},
+                "firstName": {"type": "string", "required": False},
                 "surname": {"type": "string", "required": False},
+                "legalName": {"type": "string", "required": False},
                 "type": {"type": "string", "required": True},
             },
         },
@@ -57,6 +59,8 @@ add_mandate_triplet_schema = {
             "required": True,
             "schema": {
                 "identifier": {"type": "string", "required": True},
+                "firstName": {"type": "string", "required": False},
+                "surname": {"type": "string", "required": False},
                 "legalName": {"type": "string", "required": False},
                 "type": {"type": "string", "required": True},
             },
