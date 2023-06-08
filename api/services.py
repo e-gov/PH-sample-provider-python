@@ -30,6 +30,7 @@ def get_mandates(db, representee_identifier=None, delegate_identifier=None, subd
     rows = result.fetchall()
     return [dict(row._mapping) for row in rows]
 
+
 def extract_representee_mandates(data):
     grouped = defaultdict(lambda: {
         'representee_type': None,
@@ -142,13 +143,18 @@ def extract_delegates_mandates(data):
 
 def extract_mandate_data(payload):
     data = {
-        'delegate_first_name': None,
-        'delegate_first_name': None,
-        'delegate_surname': None,
-        'delegate_type': None,
         'representee_identifier': None,
+        'representee_first_name': None,
+        'representee_surname': None,
         'representee_legal_name': None,
         'representee_type': None,
+
+        'delegate_identifier': None,
+        'delegate_first_name': None,
+        'delegate_surname': None,
+        'delegate_legal_name': None,
+        'delegate_type': None,
+
         'mandate_role': None,
         'mandate_validity_period_from': None,
         'mandate_validity_period_through': None,
@@ -166,14 +172,17 @@ def extract_mandate_data(payload):
     data_ = payload.get('data', {})
     document = payload.get('document', {})
 
-    data['delegate_first_name'] = delegate.get('firstName')
-    data['delegate_identifier'] = delegate['identifier']
-    data['delegate_surname'] = delegate.get('surname')
-    data['delegate_type'] = delegate['type']
-
     data['representee_identifier'] = representee['identifier']
+    data['representee_first_name'] = representee.get('firstName')
+    data['representee_surname'] = representee.get('surname')
     data['representee_legal_name'] = representee.get('legalName')
     data['representee_type'] = representee['type']
+
+    data['delegate_identifier'] = delegate['identifier']
+    data['delegate_first_name'] = delegate.get('firstName')
+    data['delegate_surname'] = delegate.get('surname')
+    data['delegate_legal_name'] = delegate.get('legalName')
+    data['delegate_type'] = delegate['type']
 
     data['mandate_role'] = mandate.get('role')
     validity_period = mandate.get('validityPeriod', {})
@@ -193,15 +202,19 @@ def extract_mandate_data(payload):
 
 def extract_mandate_subdelegate_data(payload):
     data = {
+        'representee_id': None,
+        'delegate_id': None,
+        'mandate_id': None,
+
+        'sub_delegate_identifier': None,
         'sub_delegate_first_name': None,
         'sub_delegate_surname': None,
+        'sub_delegate_legal_name': None,
         'sub_delegate_type': None,
-        'sub_delegate_identifier': None,
-        'representee_identifier': None,
-        'delegate_identifier': None,
-        'mandate_identifier': None,
+
         'sub_mandate_validity_period_from': None,
         'sub_mandate_validity_period_through': None,
+
         'data_created_by': None,
         'data_created_by_represented_person': None,
         'document_uuid': None,
@@ -215,6 +228,7 @@ def extract_mandate_subdelegate_data(payload):
     data['sub_delegate_first_name'] = sub_delegate.get('firstName')
     data['sub_delegate_identifier'] = sub_delegate['identifier']
     data['sub_delegate_surname'] = sub_delegate.get('surname')
+    data['sub_delegate_legal_name'] = sub_delegate.get('legalName')
     data['sub_delegate_type'] = sub_delegate['type']
 
     data['sub_mandate_validity_period_from'] = validity_period.get('from')
@@ -232,13 +246,16 @@ def create_mandate_pg(uri, data):
     cur = conn.cursor()
     cur.callproc(
         'function_create_mandate', [
-            data['delegate_first_name'],
-            data['delegate_identifier'],
-            data['delegate_surname'],
-            data['delegate_type'],
             data['representee_identifier'],
+            data['representee_first_name'],
+            data['representee_surname'],
             data['representee_legal_name'],
             data['representee_type'],
+            data['delegate_identifier'],
+            data['delegate_first_name'],
+            data['delegate_surname'],
+            data['delegate_legal_name'],
+            data['delegate_type'],
             data['mandate_role'],
             data['mandate_validity_period_from'],
             data['mandate_validity_period_through'],
@@ -254,17 +271,16 @@ def create_mandate_pg(uri, data):
     conn.close()
 
 
-def delete_mandate_pg(uri, representee_identifier,
-                      delegate_identifier, mandate_identifier):
+def delete_mandate_pg(uri, representee_id, delegate_id, mandate_id):
     conn = psycopg2.connect(uri)
     conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 
     cur = conn.cursor()
     cur.callproc(
         'function_delete_mandate', [
-            representee_identifier,
-            delegate_identifier,
-            mandate_identifier,
+            representee_id,
+            delegate_id,
+            mandate_id,
         ]
     )
     result = cur.fetchone()[0]
@@ -279,15 +295,19 @@ def subdelegate_mandate_pg(uri, data):
     cur = conn.cursor()
     cur.callproc(
         'function_insert_mandate_subdelegate', [
+            data['representee_id'],  # rename to id
+            data['delegate_id'],  # rename to id
+            data['mandate_id'],  # rename to id
+
+            data['sub_delegate_identifier'],
             data['sub_delegate_first_name'],
             data['sub_delegate_surname'],
+            data['sub_delegate_legal_name'],  # added
             data['sub_delegate_type'],
-            data['sub_delegate_identifier'],
-            data['representee_identifier'],
-            data['delegate_identifier'],
-            data['mandate_identifier'],
+
             data['sub_mandate_validity_period_from'],
             data['sub_mandate_validity_period_through'],
+
             data['data_created_by'],
             data['data_created_by_represented_person'],
             data['document_uuid'],
