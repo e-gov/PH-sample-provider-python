@@ -31,7 +31,20 @@ DECLARE
     v_delegate_code TEXT := SUBSTRING(p_delegate_identifier FROM 3);
     v_delegate_country TEXT := SUBSTRING(p_delegate_identifier FROM 1 FOR 2);
 
+    rec_role_conf roles_view%ROWTYPE;
+
 BEGIN
+
+    SELECT * INTO rec_role_conf FROM roles_view WHERE code = p_role;
+
+    IF rec_role_conf.code IS NULL THEN
+        RAISE 'There is no role with code=% defined in roles_view', p_role USING ERRCODE = '23010';
+    end if;
+
+
+    IF p_can_sub_delegate = TRUE AND rec_role_conf.can_sub_delegate = FALSE THEN
+        RAISE 'The role with code=% is defined with can_sub_delegate=FALSE but mandate to be added has it true', p_role USING ERRCODE = '23011';
+    end if;
 
     -- Insert or update person record corresponding to representee
     INSERT INTO person (type, personal_company_code, personal_company_code_country, first_name, surname, legal_name)
