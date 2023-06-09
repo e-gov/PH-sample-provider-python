@@ -52,7 +52,20 @@ def serialize_item_by_type(item, key_type):
         },
     }
 
-    default = {k: v for k, v in item.items() if v is not None and k != key_type + '_id'}
+    mapped = {
+        key_type + '_first_name': 'firstName',
+        key_type + '_identifier': 'identifier',
+        key_type + '_legal_name': 'legalName',
+        key_type + '_surname': 'surname',
+        key_type + '_type': 'type',
+    }
+
+    default = {
+        mapped[k]: v
+        for k, v in item.items()
+        if v is not None and k in mapped
+    }
+
     return switcher.get(item[key_type + '_type'], default)
 
 
