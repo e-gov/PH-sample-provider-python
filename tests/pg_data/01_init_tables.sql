@@ -12,8 +12,8 @@ CREATE TABLE person (
 
 CREATE TABLE mandate (
     id SERIAL PRIMARY KEY,
-    delegate_id INTEGER NOT NULL REFERENCES person(id),
     representee_id INTEGER NOT NULL REFERENCES person(id),
+    delegate_id INTEGER NOT NULL REFERENCES person(id),
     role TEXT,
     validity_period_from DATE,
     validity_period_through DATE,
