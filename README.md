@@ -57,7 +57,8 @@ Configure the list of roles in tests/pg_data/02b_view_paasuke_roles_view.sql
 
 ## How to run tests
 
-Tests are using the Postgres database running on a Docker container. Database contains fixture data .
+Tests are using the Postgres database running on a Docker container (so you need to have `docker-compose up postgres`)
+Database contains fixture data .
     `python3 -m venv venv`
     `source venv/bin/activate`
     `pip install -r requirements.txt`

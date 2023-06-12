@@ -231,7 +231,7 @@ def test_representee_mandates_filter_by_sub_delegated_by(client):
                         'through': '2030-12-31'
                     },
                     'links': {
-                        'delete': '/v1/representees/100004/delegates/150006/mandates/150004'
+                        'delete': '/v1/representees/100004/delegates/100006/mandates/150004'
                     }
                 }
             ]
