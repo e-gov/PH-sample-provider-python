@@ -10,7 +10,7 @@ RUN mkdir -p config
 COPY config/docker.cfg config/
 COPY settings.yaml .
 
-EXPOSE 5000
+EXPOSE 8082
 
 ENV PYTHONPATH=/app
 ENV APP_SETTINGS=../config/docker.cfg

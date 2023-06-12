@@ -18,13 +18,8 @@ CREATE TABLE mandate (
     validity_period_from DATE,
     validity_period_through DATE,
     can_sub_delegate BOOLEAN,
-    created_by TEXT, --# person logged in HEADER
-    created_by_represented_person TEXT,
+    created_by TEXT,
     original_mandate_id INTEGER REFERENCES mandate(id),
-    document_uuid TEXT, -- document.uuid
-    can_display_document_to_delegate BOOLEAN, -- document.singleDelegate
-    link_delete TEXT,
-    link_add_sub_delegate TEXT,
     deleted BOOLEAN,
     CONSTRAINT fk_mandate_delegate FOREIGN KEY (delegate_id) REFERENCES person (id),
     CONSTRAINT fk_mandate_representee FOREIGN KEY (representee_id) REFERENCES person (id)

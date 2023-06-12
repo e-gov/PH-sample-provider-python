@@ -33,14 +33,12 @@ def get_mandates(db, representee_identifier=None, delegate_identifier=None, subd
 def extract_representee_mandates(data):
     grouped = defaultdict(lambda: {
         'representee_type': None,
-        'representee_id': None,
         'representee_first_name': None,
         'representee_surname': None,
         'representee_legal_name': None,
         'representee_identifier': None,
         'delegates': defaultdict(lambda: {
             'delegate_type': None,
-            'delegate_id': None,
             'delegate_first_name': None,
             'delegate_surname': None,
             'delegate_legal_name': None,
@@ -51,7 +49,6 @@ def extract_representee_mandates(data):
 
     for entry in data:
         grouped[entry['representee_identifier']]['representee_type'] = entry['representee_type']
-        grouped[entry['representee_identifier']]['representee_id'] = entry['representee_id']
         grouped[entry['representee_identifier']]['representee_first_name'] = entry['representee_first_name']
         grouped[entry['representee_identifier']]['representee_surname'] = entry['representee_surname']
         grouped[entry['representee_identifier']]['representee_legal_name'] = entry['representee_legal_name']
@@ -59,7 +56,6 @@ def extract_representee_mandates(data):
 
         delegate = grouped[entry['representee_identifier']]['delegates'][entry['delegate_identifier']]
         delegate['delegate_type'] = entry['delegate_type']
-        delegate['delegate_id'] = entry['delegate_id']
         delegate['delegate_first_name'] = entry['delegate_first_name']
         delegate['delegate_surname'] = entry['delegate_surname']
         delegate['delegate_legal_name'] = entry['delegate_legal_name']
@@ -70,13 +66,10 @@ def extract_representee_mandates(data):
             'validity_period_from': entry['validity_period_from'],
             'validity_period_through': entry['validity_period_through'],
             'can_sub_delegate': entry['can_sub_delegate'],
-            'created_by': entry['created_by'],
             'subdelegated_by_identifier': entry['subdelegated_by_identifier'],
-            'original_mandate_id': entry['original_mandate_id'],
-            'document_uuid': entry['document_uuid'],
-            'can_display_document_to_delegate': entry['can_display_document_to_delegate'],
             'link_delete': entry['link_delete'],
-            'link_add_sub_delegate': entry['link_add_sub_delegate']
+            'link_add_sub_delegate': entry['link_add_sub_delegate'],
+            'link_origin': entry['link_origin']
         })
 
     representee = dict(grouped[next(iter(grouped))])
@@ -87,14 +80,12 @@ def extract_representee_mandates(data):
 def extract_delegates_mandates(data):
     grouped = defaultdict(lambda: {
         'delegate_type': None,
-        'delegate_id': None,
         'delegate_first_name': None,
         'delegate_surname': None,
         'delegate_legal_name': None,
         'delegate_identifier': None,
         'representees': defaultdict(lambda: {
             'representee_type': None,
-            'representee_id': None,
             'representee_first_name': None,
             'representee_surname': None,
             'representee_legal_name': None,
@@ -105,7 +96,6 @@ def extract_delegates_mandates(data):
 
     for entry in data:
         grouped[entry['delegate_identifier']]['delegate_type'] = entry['delegate_type']
-        grouped[entry['delegate_identifier']]['delegate_id'] = entry['delegate_id']
         grouped[entry['delegate_identifier']]['delegate_first_name'] = entry['delegate_first_name']
         grouped[entry['delegate_identifier']]['delegate_surname'] = entry['delegate_surname']
         grouped[entry['delegate_identifier']]['delegate_legal_name'] = entry['delegate_legal_name']
@@ -113,7 +103,6 @@ def extract_delegates_mandates(data):
 
         representee = grouped[entry['delegate_identifier']]['representees'][entry['representee_identifier']]
         representee['representee_type'] = entry['representee_type']
-        representee['representee_id'] = entry['representee_id']
         representee['representee_first_name'] = entry['representee_first_name']
         representee['representee_surname'] = entry['representee_surname']
         representee['representee_legal_name'] = entry['representee_legal_name']
@@ -124,12 +113,9 @@ def extract_delegates_mandates(data):
             'validity_period_from': entry['validity_period_from'],
             'validity_period_through': entry['validity_period_through'],
             'can_sub_delegate': entry['can_sub_delegate'],
-            'created_by': entry['created_by'],
             'subdelegated_by_identifier': entry['subdelegated_by_identifier'],
-            'original_mandate_id': entry['original_mandate_id'],
-            'document_uuid': entry['document_uuid'],
-            'can_display_document_to_delegate': entry['can_display_document_to_delegate'],
             'link_delete': entry['link_delete'],
+            'link_origin': entry['link_origin'],
             'link_add_sub_delegate': entry['link_add_sub_delegate']
         })
 
@@ -158,9 +144,6 @@ def extract_mandate_data(payload):
         'mandate_can_sub_delegate': False,
         'data_created_by': None,
         'subdelegated_by_identifier': None,
-        'data_original_mandate_id': None,
-        'document_uuid': None,
-        'data_can_display_document_to_delegate': False,
     }
 
     delegate = payload['delegate']

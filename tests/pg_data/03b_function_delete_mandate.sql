@@ -13,7 +13,7 @@ END IF;
 UPDATE mandate
   SET deleted = TRUE
 WHERE id = CAST(p_mandate_id as INTEGER)
-  AND representee_id = p_representee_id
+  AND representee_id = CAST(p_representee_id AS INTEGER)
   AND delegate_id = CAST(p_delegate_id AS INTEGER);
 IF FOUND THEN
           RETURN TRUE;

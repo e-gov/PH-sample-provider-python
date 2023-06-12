@@ -62,7 +62,7 @@ def test_delegate_mandates(client):
                     'role': 'AGENCY_X:ENTER',
                     'links': {
                         'delete': '/v1/representees/100001/delegates/100002/mandates/150001',
-                        'origin': 'http://example.com/'
+                        'origin': 'https://example.com/mandate/150001'
                     }
                 }
             ]
@@ -134,7 +134,7 @@ def test_representee_mandates(client):
                 {
                     'links': {
                         'delete': '/v1/representees/100001/delegates/100002/mandates/150001',
-                        'origin': 'http://example.com/'
+                        'origin': 'https://example.com/mandate/150001'
                     },
                     'role': 'AGENCY_X:ENTER'
                 }
@@ -156,7 +156,7 @@ def test_representee_mandates(client):
                 {
                     'links': {
                         'delete': '/v1/representees/100001/delegates/100003/mandates/150002',
-                        'origin': 'http://example.com/'
+                        'origin': 'https://example.com/mandate/150002'
                     },
                     'role': 'AGENCY_X:ENTER_AND_SUBMIT',
                     'validityPeriod': {
@@ -193,7 +193,7 @@ def test_representee_mandates_filter_by_delegate(client):
                 {
                     'links': {
                         'delete': '/v1/representees/100001/delegates/100002/mandates/150001',
-                        'origin': 'http://example.com/'
+                        'origin': 'https://example.com/mandate/150001'
                     },
                     'role': 'AGENCY_X:ENTER'
                 }
@@ -231,8 +231,7 @@ def test_representee_mandates_filter_by_sub_delegated_by(client):
                         'through': '2030-12-31'
                     },
                     'links': {
-                        'delete': '/v1/representees/100004/delegates/150006/mandates/150004',
-                        'origin': 'http://example.com/'
+                        'delete': '/v1/representees/100004/delegates/150006/mandates/150004'
                     }
                 }
             ]
@@ -246,11 +245,11 @@ def test_roles(client):
     assert response.status_code == 200
     assert response.json == [
         {
+            'code': 'AGENCY_X:ENTER',
             'addableBy': ['BR_REPRIGHT:SOLEREP', 'AGENCY_X:MANDATES_MANAGER'],
             'addingMustBeSigned': False,
             'assignableBy': ['BR_REPRIGHT:SOLEREP', 'AGENCY_X:MANDATES_MANAGER'],
             'canSubDelegate': False,
-            'code': 'AGENCY_X:ENTER',
             'delegateCanEqualToRepresentee': False,
             'deletableBy': ['BR_REPRIGHT:SOLEREP', 'AGENCY_X:MANDATES_MANAGER'],
             'deletableByDelegate': True,
@@ -266,17 +265,18 @@ def test_roles(client):
             },
             'validityPeriodFromNotInFuture': True,
             'validityPeriodThroughMustBeUndefined': True,
-            'visible': True, 
+            'visible': True,
             'waivableBy': ['NAT_REPRIGHT:SOLEREP'],
             'waivingMustBeSigned': False,
             'withdrawableBy': ['BR_REPRIGHT:SOLEREP', 'AGENCY_X:MANDATES_MANAGER'],
-            'withdrawalMustBeSigned': False},
+            'withdrawalMustBeSigned': False
+        },
         {
+            'code': 'AGENCY_X:ENTER_AND_SUBMIT',
             'addableBy': ['BR_REPRIGHT:SOLEREP', 'AGENCY_X:MANDATES_MANAGER'],
             'addingMustBeSigned': False,
             'assignableBy': ['BR_REPRIGHT:SOLEREP', 'AGENCY_X:MANDATES_MANAGER'],
             'canSubDelegate': False,
-            'code': 'AGENCY_X:ENTER_AND_SUBMIT',
             'delegateCanEqualToRepresentee': False,
             'deletableBy': ['BR_REPRIGHT:SOLEREP', 'AGENCY_X:MANDATES_MANAGER'],
             'deletableByDelegate': True,
@@ -299,11 +299,11 @@ def test_roles(client):
             'withdrawalMustBeSigned': False
         },
         {
+            'code': 'AGENCY_X:MANDATES_MANAGER',
             'addableBy': ['BR_REPRIGHT:SOLEREP'],
             'addingMustBeSigned': False,
             'assignableBy': ['BR_REPRIGHT:SOLEREP'],
-            'canSubDelegate': False,
-            'code': 'AGENCY_X:MANDATES_MANAGER',
+            'canSubDelegate': True,
             'delegateCanEqualToRepresentee': False,
             'deletableBy': ['BR_REPRIGHT:SOLEREP'],
             'deletableByDelegate': True,

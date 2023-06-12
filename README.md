@@ -55,20 +55,9 @@ Check configuration example in example.cfg.
 Configure the list of roles in tests/pg_data/02b_view_paasuke_roles_view.sql
 
 
-# How to access API
+## How to run tests
 
-Access API on http://localhost:5002/v1
-
-```
-curl --location 'http://localhost:5002/v1/representees/EE33333333/delegates/mandates' \
---header 'X-Road-UserId: test-header-xroad-userid' \
---header 'X-Road-Represented-Party: TEST-Represented-Party' \
---header 'X-Road-Id: TEST-ID-12345'
-```
-
-## Tests
-
-Tests are using the Postgres database running on a Docker container and fixture data inside.
+Tests are using the Postgres database running on a Docker container. Database contains fixture data .
     `python3 -m venv venv`
     `source venv/bin/activate`
     `pip install -r requirements.txt`
@@ -87,17 +76,20 @@ Point gunicorn to WSGI entrypoint `wsgi.py`
 
 ## Endpoints
 
+When running locally then access API on http://localhost:8082
+
+
 ### `GET /v1/representees/<str:representee>/delegates/mandates`
 
 Accepts representee identifier as parameter in path
-Raises `400` error if identifier does not validate
+Raises `400` error if identifier is not valid
 Returns the list of `MandateTriplet`s with status code `200` if representee has valid mandates
 Returns empty list if the representee has no valid mandates or the representee is unknown.
-Uses Postgres view `paasuke_mandates_view`
+Selects data from Postgres view `paasuke_mandates_view`
 
 Example:
 ```
-curl --location 'http://localhost:5002/v1/representees/EE33333333/delegates/mandates' \
+curl --location 'http://localhost:8082/v1/representees/EE44444444/delegates/mandates' \
 --header 'X-Road-UserId: test-header-xroad-userid' \
 --header 'X-Road-Represented-Party: test-header-xroad-represented-party' \
 --header 'X-Road-Id: test-header-xroad-id'
@@ -107,14 +99,14 @@ curl --location 'http://localhost:5002/v1/representees/EE33333333/delegates/mand
 ### `GET /v1/delegates/<str:delegate>/representees/mandates`
 
 Accepts delegate identifier as parameter in path
-Raises `400` error if identifier does not validate
+Raises `400` error if identifier is not valid
 Returns the list of `MandateTriplet`s with status code `200` if delegate has valid mandates
 Returns an empty list if delegate has no valid mandates or the delegate is unknown.
-Uses Postgres view `paasuke_mandates_view`
+Selects data from Postgres view `paasuke_mandates_view`
 
 Example:
 ```
-curl --location 'http://127.0.0.1:5002/v1/delegates/EE1111111/representees/mandates' \
+curl --location 'http://127.0.0.1:8082/v1/delegates/EE22202222222/representees/mandates' \
 --header 'X-Road-UserId: Test User Id'
 ```
 
@@ -125,7 +117,7 @@ Selects data from Postgres view `paasuke_roles_view`
 
 Example:
 
-`curl --location 'http://localhost:5002/v1/roles`
+`curl --location 'http://localhost:8082/v1/roles'`
 
 
 
@@ -139,17 +131,22 @@ Return an empty list with status code `201` in case of success
 Example of successful request:
 
 ```
-curl --location 'http://127.0.0.1:5002/v1/representees/EE12345678/delegates/EE38302250123/mandates' \
+curl --location 'http://127.0.0.1:8082/v1/representees/EE12345678/delegates/EE38302250123/mandates' \
 --header 'Content-Type: application/json' \
 --header 'X-Road-UserId: LT123456' \
 --header 'X-Road-Represented-Party: LV1234566' \
 --data '  {
   "authorizations": [
     {
-      "hasRole": "FROM_BUSINESS_REGISTRY:MANAGEMENT_BOARD_MEMBER_FULL",
+      "hasRole": "BR_REPRIGHT:JUHL_SOLEREP",
       "userIdentifier": "EE49028099999"
     }
   ],
+  "representee": {
+    "identifier": "EE12345678",
+    "legalName": "Väikefirma OÜ",
+    "type": "LEGAL_PERSON"
+  },
   "delegate": {
     "firstName": "Jüri",
     "identifier": "EE38302250123",
@@ -162,16 +159,11 @@ curl --location 'http://127.0.0.1:5002/v1/representees/EE12345678/delegates/EE38
   },
   "mandate": {
     "canSubDelegate": true,
-    "role": "GLOBAL1_EMTA:ACCOUNTANT",
+    "role": "AGENCY_X:MANDATES_MANAGER",
     "validityPeriod": {
       "from": "2028-01-01",
       "through": "2030-12-31"
     }
-  },
-  "representee": {
-    "identifier": "EE12345678",
-    "legalName": "Väikefirma OÜ",
-    "type": "LEGAL_PERSON"
   }
 }'
 ```
@@ -185,15 +177,16 @@ Raises `422` error if Postgres function `paasuke_add_mandate_subdelegate` does n
 Returns empty list with status code `200` in success case
 
 Example of successful request:
+
 ```
-curl --location 'http://127.0.0.1:5002/v1/representees/EE33333333/delegates/100001/mandates/150003/subdelegates' \
+curl --location 'http://127.0.0.1:8082/v1/representees/100004/delegates/100005/mandates/150003/subdelegates' \
 --header 'Content-Type: application/json' \
 --header 'X-Road-UserId: EE23232323' \
 --header 'X-Road-Represented-Party: EE2323224444' \
 --data '{
   "authorizations": [
     {
-      "hasRole": "FROM_BUSINESS_REGISTRY:MANAGEMENT_BOARD_MEMBER_FULL",
+      "hasRole": "BR_REPRIGHT:PROK_SOLEREP",
       "userIdentifier": "EE39912310123"
     }
   ],
@@ -220,12 +213,11 @@ curl --location 'http://127.0.0.1:5002/v1/representees/EE33333333/delegates/1000
 Accepts `representeeId`, `delegateId`, `mandateId` as parameters in the path.
 Raises `404` error if the mandate does not exist
 Raises `422` error if Postgres function `paasuke_delete_mandate` does not validate input data.
-Returns empty list with status code `200` in success case
+Returns empty list with status code `200` if mandates has been marked deleted successfully
 
 Example of successful request:
-
 ```
-curl --location --request PUT 'http://127.0.0.1:5002/v1/representees/EE33333333/delegates/100001/mandates/150003' \
+curl --location --request PUT 'http://127.0.0.1:8082/v1/representees/100001/delegates/100003/mandates/150002' \
 --header 'Content-Type: application/json' \
 --data '{
   "action": "DELETE",

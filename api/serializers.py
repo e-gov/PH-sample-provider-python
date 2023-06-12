@@ -70,13 +70,16 @@ def serialize_item_by_type(item, key_type):
 
 
 def serialize_mandate(representee, delegate, mandate, settings):
-    links = {
-        'delete': mandate['link_delete'],
-        'origin': settings["origin_url"],
-    }
+    links = {}
+
+    if mandate['link_delete']:
+        links['delete'] = mandate['link_delete']
 
     if mandate['can_sub_delegate'] and mandate['link_add_sub_delegate']:
         links['addSubDelegate'] = mandate['link_add_sub_delegate']
+
+    if mandate['link_origin']:
+        links['origin'] = mandate['link_origin']
 
     validity_period = {}
     if mandate['validity_period_from']:

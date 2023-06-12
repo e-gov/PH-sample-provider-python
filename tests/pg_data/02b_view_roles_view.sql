@@ -83,7 +83,7 @@ SELECT
 
     ARRAY [ 'BR_REPRIGHT:SOLEREP']::text[] as addable_by,
     false as adding_must_be_signed,
-    false as can_sub_delegate,
+    true as can_sub_delegate,
     ARRAY ['LEGAL_PERSON', 'NATURAL_PERSON']::text[] as representee_type,
     ARRAY ['LEGAL_PERSON','NATURAL_PERSON']::text[] as delegateType,
     ARRAY ['NAT_REPRIGHT:SOLEREP']::text[] as waivable_by,

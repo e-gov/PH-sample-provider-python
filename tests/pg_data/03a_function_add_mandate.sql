@@ -65,8 +65,8 @@ BEGIN
 
 -- Insert mandate record
     INSERT INTO mandate (representee_id, delegate_id, role, validity_period_from, validity_period_through,
-                         can_sub_delegate, created_by, document_uuid, can_display_document_to_delegate)
+                         can_sub_delegate, created_by)
     VALUES (v_representee_id, v_delegate_id, p_role, p_validity_period_from::DATE, p_validity_period_through::DATE,
-            p_can_sub_delegate, p_created_by, p_document_uuid, p_can_display_document_to_delegate);
+            p_can_sub_delegate, p_created_by);
 END;
 $$ LANGUAGE PLPGSQL;
