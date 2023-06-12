@@ -4,9 +4,9 @@ errors:
       reference: http://example-legal-person-naming-guidence.com
       title: Legal person validation failed
       translation:
-        en: Legal person validation does not match format
-        et: Volituse kustutamine ebaõnnestus
-        ru: Volituse kustutamine ebaõnnestus (ru)
+        en: Legal person does not match format (et)
+        et: Legal person does not match format
+        ru: Legal person does not match format (ru)
       type: test-type-for-legal-person-validation
     action_invalid:
       reference: http://example-delegate-not-found-guidence.com
@@ -20,39 +20,39 @@ errors:
       reference: http://example-mandate-data-invalid-guidence.com
       title: Mandate data is invalid
       translation:
-        en: Mandate data is invalid
-        et: Volituse kustutamine ebaõnnestus
-        ru: Volituse kustutamine ebaõnnestus (ru)
+        en: Mandate data is invalid (et)
+        et: Mandate data is invalid
+        ru: Mandate data is invalid (ru)
       type: test-type-for-mandate-data-invalid
     mandate_subdelegate_data_invalid:
       reference: http://example-mandate-subdelegate-data-invalid-guidence.com
       title: Mandate subdelegate data is invalid
       translation:
-        en: Mandate subdelegare data is invalid
-        et: Volituse kustutamine ebaõnnestus
-        ru: Volituse kustutamine ebaõnnestus (ru)
+        en: Mandate subdelegare data is invalid (et)
+        et: Mandate subdelegare data is invalid
+        ru: Mandate subdelegare data is invalid (ru)
       type: test-type-for-mandate-subdelegate-data-invalid
     mandate_not_found:
       reference: http://example-mandate-not-found-guidence.com
       title: Mandate not found
       translation:
-        en: Mandate not found
-        et: Volituse kustutamine ebaõnnestus
-        ru: Volituse kustutamine ebaõnnestus (ru)
+        en: Mandate not found (et)
+        et: Mandate not found
+        ru: Mandate not found (ru)
       type: test-type-for-mandate-not-found
     internal_server_error:
       reference: http://example-internal-server-error-guidence.com
       title: Internal server error
       translation:
-        en: Internal server error
-        et: Volituse kustutamine ebaõnnestus
-        ru: Volituse kustutamine ebaõnnestus (ru)
+        en: Internal server error (et)
+        et: Internal server error
+        ru: Internal server error (ru)
       type: test-type-for-internal-server-error-found
     unprocessable_request:
       reference: http://example-unprocessable-request-error-guidence.com
       title: Unprocessable request error
       translation:
-        en: Unprocessable request error
-        et: Volituse kustutamine ebaõnnestus
-        ru: Volituse kustutamine ebaõnnestus (ru)
+        en: Unprocessable request error (et)
+        et: Unprocessable request error
+        ru: Unprocessable request error (ru)
       type: test-type-for-internal-server-error-found

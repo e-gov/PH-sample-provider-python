@@ -112,7 +112,8 @@ def validate_person_company_code(code: str, error_config) -> None:
 
 
 def validate_add_mandate_payload(payload, error_config, representee_identifier, delegate_identifier):
-    v = Validator()
+    v = Validator(allow_unknown=True)
+
     if not v.validate(payload, add_mandate_triplet_schema):
         raise MandateDataInvalid('Add Mandate Triplet data is invalid', error_config)
     if representee_identifier != payload['representee']['identifier']:
@@ -122,6 +123,7 @@ def validate_add_mandate_payload(payload, error_config, representee_identifier, 
 
 
 def validate_add_mandate_subdelegate_payload(payload, error_config):
-    v = Validator()
+    v = Validator(allow_unknown=True)
+
     if not v.validate(payload, add_mandate_subdelegate_schema):
         raise MandateSubdelegateDataInvalid('Add Mandate Subdelegate data is invalid', error_config)

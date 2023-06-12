@@ -1,12 +1,12 @@
 
 # Adapter application (Python)
 
-This application is an adapter for Pääsuke written in Python Flask.
-This is used by a party who keeps mandates on their side but offers a standard service
+This application is an adapter for [Pääsuke](https://github.com/e-gov/PH) written in Python Flask.
+This can be used by a party who keeps mandates on their side and offers a standard web service
 for Pääsuke for it to query mandates.
 
 The idea is that there is a Postgres database that keeps the data.
-Into that Postgres database we create view and procedures that this app calls.
+Into that Postgres database we create view and stored procedures that this app calls.
 
 ## Sequence diagram illustrating the application
 ![Sequence diagram](doc/sequence-diagram-pr.png)
@@ -31,8 +31,6 @@ This database has a few tables to sore information about mandates.
 
 
 ## Configuration
-1. List of roles => view
-
 
 ## How to run API app in development environment
 
@@ -51,6 +49,13 @@ Check configuration example in example.cfg.
 
 ## How to run API app with docker-compose
     `docker-compose up -d`
+
+## How to configure the list of roles
+
+Configure the list of roles in tests/pg_data/02b_view_paasuke_roles_view.sql
+
+
+# How to access API
 
 Access API on http://localhost:5002/v1
 
@@ -88,7 +93,7 @@ Accepts representee identifier as parameter in path
 Raises `400` error if identifier does not validate
 Returns the list of `MandateTriplet`s with status code `200` if representee has valid mandates
 Returns empty list if the representee has no valid mandates or the representee is unknown.
-Uses Postgres view `representee_mandates_view`
+Uses Postgres view `paasuke_mandates_view`
 
 Example:
 ```
@@ -105,7 +110,7 @@ Accepts delegate identifier as parameter in path
 Raises `400` error if identifier does not validate
 Returns the list of `MandateTriplet`s with status code `200` if delegate has valid mandates
 Returns an empty list if delegate has no valid mandates or the delegate is unknown.
-Uses Postgres view `representee_mandates_view`
+Uses Postgres view `paasuke_mandates_view`
 
 Example:
 ```
@@ -116,7 +121,7 @@ curl --location 'http://127.0.0.1:5002/v1/delegates/EE1111111/representees/manda
 ### `GET /roles`
 
 Get a list of roles
-Selects data from Postgres view `roles_view`
+Selects data from Postgres view `paasuke_roles_view`
 
 Example:
 
@@ -128,7 +133,7 @@ Example:
 
 Accepts repreentee and delegate identifiers as path parameters
 Raises `400` error if payload data is not valid or identifiers are not valid
-Raises `422` error if Postgres function `function_create_mandate` does not validate input data.
+Raises `422` error if Postgres function `paasuke_add_mandate` does not validate input data.
 Return an empty list with status code `201` in case of success
 
 Example of successful request:
@@ -176,7 +181,7 @@ curl --location 'http://127.0.0.1:5002/v1/representees/EE12345678/delegates/EE38
 
 Accepts `representeeId`, `delegateId`, `mandateId` as parameters in the path.
 Raises `404` error if the mandate does not exist
-Raises `422` error if Postgres function `function_insert_mandate_subdelegate` does not validate input data.
+Raises `422` error if Postgres function `paasuke_add_mandate_subdelegate` does not validate input data.
 Returns empty list with status code `200` in success case
 
 Example of successful request:
@@ -214,7 +219,7 @@ curl --location 'http://127.0.0.1:5002/v1/representees/EE33333333/delegates/1000
 
 Accepts `representeeId`, `delegateId`, `mandateId` as parameters in the path.
 Raises `404` error if the mandate does not exist
-Raises `422` error if Postgres function `function_delete_mandate` does not validate input data.
+Raises `422` error if Postgres function `paasuke_delete_mandate` does not validate input data.
 Returns empty list with status code `200` in success case
 
 Example of successful request:

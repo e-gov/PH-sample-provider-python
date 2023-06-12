@@ -42,67 +42,30 @@ def test_delegate_not_found_empty_list(client, config):
 
 
 def test_delegate_mandates(client):
-    response = client.get('/v1/delegates/EE1111111/representees/mandates')
+    response = client.get('/v1/delegates/EE22202222222/representees/mandates')
     assert response.status_code == 200
     assert response.json == [
         {
-            'delegate': {
-                'firstName': 'EE Person Name 1',
-                'identifier': 'EE1111111',
-                'surname': 'EE Person Surname 1',
-                'type': 'LEGAL_PERSON'
-            },
-            'mandates': [
-                {
-                    'links': {
-                        'delete': '/v1/representees/100004/delegates/100002/mandates/150000',
-                        'origin': 'http://example.com/',
-                        'addSubDelegate': '/v1/representees/100004/delegates/100002/mandates/150000/subdelegates'
-                    },
-                    'role': 'TEST:ROLE1'
-                },
-                {
-                    'links': {
-                        'delete': '/v1/representees/100004/delegates/100002/mandates/150001',
-                        'origin': 'http://example.com/'
-                    },
-                    'role': 'TEST:ROLE1',
-                    'validityPeriod': {
-                        'from': '2021-01-01'
-                    }
-                }
-            ],
             'representee': {
-                'identifier': 'EE33333333',
-                'legalName': 'EE Legal Person 3',
-                'type': 'LEGAL_PERSON'
-            }
-        },
-        {
-            'delegate': {
-                'firstName': 'EE Person Name 1',
-                'identifier': 'EE1111111',
-                'surname': 'EE Person Surname 1',
-                'type': 'LEGAL_PERSON'
-            },
-            'mandates': [
-                {
-                    'links': {
-                        'delete': '/v1/representees/100005/delegates/100002/mandates/150005',
-                        'origin': 'http://example.com/',
-                        'addSubDelegate': '/v1/representees/100005/delegates/100002/mandates/150005/subdelegates'
-                    },
-                    'role': 'TEST6:ROLE1:ROLE2',
-                    'validityPeriod': {
-                        'through': '2050-12-31'
-                    }
-                }
-            ],
-            'representee': {
-                'identifier': 'LV98765432',
+                'identifier': 'EE11111111',
                 'legalName': 'EE Legal Person 1',
-                'type': 'OTHER'
-            }
+                'type': 'LEGAL_PERSON'
+            },
+            'delegate': {
+                'firstName': 'EE First Name',
+                'identifier': 'EE22202222222',
+                'surname': 'EE Surname 2',
+                'type': 'NATURAL_PERSON'
+            },
+            'mandates': [
+                {
+                    'role': 'AGENCY_X:ENTER',
+                    'links': {
+                        'delete': '/v1/representees/100001/delegates/100002/mandates/150001',
+                        'origin': 'http://example.com/'
+                    }
+                }
+            ]
         }
     ]
 
@@ -152,138 +115,129 @@ def test_company_format_validation_failed(client, query_param, config):
 
 
 def test_representee_mandates(client):
-    response = client.get('v1/representees/EE33333333/delegates/mandates')
+    response = client.get('v1/representees/EE11111111/delegates/mandates')
     assert response.status_code == 200
     assert response.json == [
         {
-            'delegate':
-                {
-                    'identifier': 'EE1111111',
-                    'legalName': 'EE Legal Person 1',
-                    'type': 'LEGAL_PERSON'
-                },
-            'mandates': [
-                {
-                    'links':
-                        {
-                            'addSubDelegate': '/v1/representees/100004/delegates/100002/mandates/150000/subdelegates',
-                            'delete': '/v1/representees/100004/delegates/100002/mandates/150000',
-                            'origin': 'http://example.com/'
-                        },
-                    'role': 'TEST:ROLE1'
-                },
-                {
-                    'links':
-                        {
-                            'delete': '/v1/representees/100004/delegates/100002/mandates/150001',
-                            'origin': 'http://example.com/'
-                        },
-                    'role': 'TEST:ROLE1',
-                    'validityPeriod':
-                        {
-                            'from': '2021-01-01'
-                        }
-                }
-            ],
-            'representee':
-                {
-                    'identifier': 'EE33333333',
-                    'legalName': 'EE Legal Person 3',
-                    'type': 'LEGAL_PERSON'
-                }
-        },
-        {
+            'representee': {
+                'identifier': 'EE11111111',
+                'legalName': 'EE Legal Person 1',
+                'type': 'LEGAL_PERSON'
+            },
             'delegate': {
-                'firstName': 'LT Person Name 1',
-                'identifier': 'LT1234568',
-                'surname': 'LT Person Surname 1',
+                'firstName': 'EE First Name',
+                'identifier': 'EE22202222222',
+                'surname': 'EE Surname 2',
                 'type': 'NATURAL_PERSON'
             },
             'mandates': [
                 {
-                    'links':
-                        {
-                            'addSubDelegate': '/v1/representees/100004/delegates/100001/mandates/150003/subdelegates',
-                            'delete': '/v1/representees/100004/delegates/100001/mandates/150003',
-                            'origin': 'http://example.com/'
-                        },
-                    'role': 'TEST2:ROLE2:ROLE6',
-                    'validityPeriod':
-                        {
-                            'from': '2020-01-01',
-                            'through': '2030-12-31'
-                        }
-                },
-                {
-                    'links':
-                        {
-                            'addSubDelegate': '/v1/representees/100004/delegates/100001/mandates/150004/subdelegates',
-                            'delete': '/v1/representees/100004/delegates/100001/mandates/150004',
-                            'origin': 'http://example.com/'
-                        },
-                    'role': 'TEST3:ROLE12:ROLE100',
-                    'validityPeriod':
-                        {
-                            'through': '2050-12-31'
-                        }
+                    'links': {
+                        'delete': '/v1/representees/100001/delegates/100002/mandates/150001',
+                        'origin': 'http://example.com/'
+                    },
+                    'role': 'AGENCY_X:ENTER'
                 }
-            ],
-            'representee':
+            ]
+        },
+        {
+            'representee': {
+                'identifier': 'EE11111111',
+                'legalName': 'EE Legal Person 1',
+                'type': 'LEGAL_PERSON'
+            },
+            'delegate': {
+                'firstName': 'LT First',
+                'identifier': 'LT33303333333',
+                'surname': 'LT Surname 2',
+                'type': 'NATURAL_PERSON'
+            },
+            'mandates': [
                 {
-                    'identifier': 'EE33333333',
-                    'legalName': 'EE Legal Person 3',
-                    'type': 'LEGAL_PERSON'
+                    'links': {
+                        'delete': '/v1/representees/100001/delegates/100003/mandates/150002',
+                        'origin': 'http://example.com/'
+                    },
+                    'role': 'AGENCY_X:ENTER_AND_SUBMIT',
+                    'validityPeriod': {
+                        'from': '2021-01-01'
+                    }
                 }
-        }
+            ]
+         }
     ]
+
 
 
 def test_representee_mandates_filter_by_delegate(client):
     response = client.get(
-        'v1/representees/EE33333333/delegates/mandates',
-        query_string={'delegate': 'LT1234568'}
+        'v1/representees/EE11111111/delegates/mandates',
+        query_string={'delegate': 'EE22202222222'}
 
     )
     assert response.status_code == 200
     assert response.json == [
         {
+            'representee': {
+                'identifier': 'EE11111111',
+                'legalName': 'EE Legal Person 1',
+                'type': 'LEGAL_PERSON'
+            },
             'delegate': {
-                'firstName': 'LT Person Name 1',
-                'identifier': 'LT1234568',
-                'surname': 'LT Person Surname 1',
+                'firstName': 'EE First Name',
+                'identifier': 'EE22202222222',
+                'surname': 'EE Surname 2',
                 'type': 'NATURAL_PERSON'
             },
             'mandates': [
                 {
                     'links': {
-                        'delete': '/v1/representees/100004/delegates/100001/mandates/150003',
-                        'origin': 'http://example.com/',
-                        'addSubDelegate': '/v1/representees/100004/delegates/100001/mandates/150003/subdelegates'
+                        'delete': '/v1/representees/100001/delegates/100002/mandates/150001',
+                        'origin': 'http://example.com/'
                     },
-                    'role': 'TEST2:ROLE2:ROLE6',
+                    'role': 'AGENCY_X:ENTER'
+                }
+            ]
+        },
+    ]
+
+
+def test_representee_mandates_filter_by_sub_delegated_by(client):
+    response = client.get(
+        'v1/representees/EE44444444/delegates/mandates',
+        query_string={'subDelegatedBy': 'EE55555555'}
+
+    )
+    assert response.status_code == 200
+    assert response.json == [
+        {
+            'representee': {
+                'identifier': 'EE44444444',
+                'legalName': 'EE Legal Person 4',
+                'type': 'LEGAL_PERSON'
+            },
+            'delegate': {
+                'firstName': 'EE First Name',
+                'identifier': 'EE60606666666',
+                'surname': 'EE Surname 6',
+                'type': 'NATURAL_PERSON'
+            },
+            'mandates': [
+                {
+                    'role': 'AGENCY_X:MANDATES_MANAGER',
+                    'subDelegatorIdentifier': 'EE55555555',
                     'validityPeriod': {
                         'from': '2020-01-01',
                         'through': '2030-12-31'
-                    }
-                },
-                {
-                    'links': {
-                        'delete': '/v1/representees/100004/delegates/100001/mandates/150004',
-                        'origin': 'http://example.com/',
-                        'addSubDelegate': '/v1/representees/100004/delegates/100001/mandates/150004/subdelegates'
                     },
-                    'role': 'TEST3:ROLE12:ROLE100',
-                    'validityPeriod': {
-                        'through': '2050-12-31'
+                    'links': {
+                        'delete': '/v1/representees/100004/delegates/150006/mandates/150004',
+                        'origin': 'http://example.com/'
                     }
                 }
-            ],
-            'representee': {
-                'identifier': 'EE33333333',
-                'legalName': 'EE Legal Person 3',
-                'type': 'LEGAL_PERSON'
-            }
-        },
+            ]
+
+         }
     ]
 
 
@@ -292,31 +246,56 @@ def test_roles(client):
     assert response.status_code == 200
     assert response.json == [
         {
-            'addableBy': ['BR_REPRIGHT:SOLEREP'],
+            'addableBy': ['BR_REPRIGHT:SOLEREP', 'AGENCY_X:MANDATES_MANAGER'],
             'addingMustBeSigned': False,
-            'assignableBy': ['BR_REPRIGHT:SOLEREP'],
+            'assignableBy': ['BR_REPRIGHT:SOLEREP', 'AGENCY_X:MANDATES_MANAGER'],
             'canSubDelegate': False,
-            'code': 'ANNUAL_REPORTS:ENTER',
+            'code': 'AGENCY_X:ENTER',
             'delegateCanEqualToRepresentee': False,
-            'deletableBy': ['BR_REPRIGHT:SOLEREP'],
+            'deletableBy': ['BR_REPRIGHT:SOLEREP', 'AGENCY_X:MANDATES_MANAGER'],
             'deletableByDelegate': True,
             'description': {
-                'en': 'Omab õigust sisestada majandusaasta aruande andmeid',
-                'et': 'Has the right to enter annual report data',
-                'ru': 'Omab õigust sisestada majandusaasta aruande andmeid (rus)'
-            },
-            'modified': '2023-05-31T12:00:00',
+                'en': 'Omab õigust sisestada andmeid',
+                'et': 'Has the right to enter data',
+                'ru': 'Has the right to enter data (ru)'},
             'representeeType': ['LEGAL_PERSON'],
             'title': {
                 'en': 'Andmesisestaja',
                 'et': 'Data entry specialist',
-                'ru': 'Andmesisestaja (rus)'
+                'ru': 'Andmesisestaja (ru)'
             },
             'validityPeriodFromNotInFuture': True,
             'validityPeriodThroughMustBeUndefined': True,
-            'visible': True, 'waivableBy': ['NAT_REPRIGHT:SOLEREP'],
+            'visible': True, 
+            'waivableBy': ['NAT_REPRIGHT:SOLEREP'],
             'waivingMustBeSigned': False,
-            'withdrawableBy': ['BR_REPRIGHT:SOLEREP'],
+            'withdrawableBy': ['BR_REPRIGHT:SOLEREP', 'AGENCY_X:MANDATES_MANAGER'],
+            'withdrawalMustBeSigned': False},
+        {
+            'addableBy': ['BR_REPRIGHT:SOLEREP', 'AGENCY_X:MANDATES_MANAGER'],
+            'addingMustBeSigned': False,
+            'assignableBy': ['BR_REPRIGHT:SOLEREP', 'AGENCY_X:MANDATES_MANAGER'],
+            'canSubDelegate': False,
+            'code': 'AGENCY_X:ENTER_AND_SUBMIT',
+            'delegateCanEqualToRepresentee': False,
+            'deletableBy': ['BR_REPRIGHT:SOLEREP', 'AGENCY_X:MANDATES_MANAGER'],
+            'deletableByDelegate': True,
+            'description': {
+                'en': 'Omab õigust sisestada andmeid ja neid esitada',
+                'et': 'Has the right to enter data and submit them',
+                'ru': 'Has the right to enter data and submit them (ru)'},
+            'representeeType': ['LEGAL_PERSON'],
+            'title': {
+                'en': 'Esitamisõigusega andmesisestaja',
+                'et': 'Data entry and report submitting specialist',
+                'ru': 'Data entry and report submitting specialist (ru)'
+            },
+            'validityPeriodFromNotInFuture': True,
+            'validityPeriodThroughMustBeUndefined': True,
+            'visible': True,
+            'waivableBy': ['NAT_REPRIGHT:SOLEREP'],
+            'waivingMustBeSigned': False,
+            'withdrawableBy': ['BR_REPRIGHT:SOLEREP', 'AGENCY_X:MANDATES_MANAGER'],
             'withdrawalMustBeSigned': False
         },
         {
@@ -324,20 +303,19 @@ def test_roles(client):
             'addingMustBeSigned': False,
             'assignableBy': ['BR_REPRIGHT:SOLEREP'],
             'canSubDelegate': False,
-            'code': 'ANNUAL_REPORTS:ENTER_AND_SUBMIT',
+            'code': 'AGENCY_X:MANDATES_MANAGER',
             'delegateCanEqualToRepresentee': False,
+            'deletableBy': ['BR_REPRIGHT:SOLEREP'],
             'deletableByDelegate': True,
             'description': {
-                'en': 'Omab õigust sisestada majandusaasta aruande andmeid ja esitada aruanne registrile',
-                'et': 'Has the right to enter annual report data and submit annual reports to the business registry',
-                'ru': 'Omab õigust sisestada majandusaasta aruande andmeid ja esitada aruanne registrile (rus)'
-            },
-            'modified': '2023-05-31T12:00:00',
-            'representeeType': ['LEGAL_PERSON'],
+                'en': 'Omab õigust volitusi lisada ja muuta',
+                'et': 'Has the right to edit and add mandates',
+                'ru': 'Has the right to edit and add mandates (ru)'},
+            'representeeType': ['LEGAL_PERSON', 'NATURAL_PERSON'],
             'title': {
-                'en': 'Esitamisõigusega andmesisestaja',
-                'et': 'Data entry and report submitting specialist',
-                'ru': 'Esitamisõigusega andmesisestaja (rus)'
+                'en': 'Volituste haldur',
+                'et': 'Mandates manager',
+                'ru': 'Mandates manager (ru)'
             },
             'validityPeriodFromNotInFuture': True,
             'validityPeriodThroughMustBeUndefined': True,
@@ -345,6 +323,5 @@ def test_roles(client):
             'waivableBy': ['NAT_REPRIGHT:SOLEREP'],
             'waivingMustBeSigned': False,
             'withdrawableBy': ['BR_REPRIGHT:SOLEREP'],
-            'withdrawalMustBeSigned': False
-        }
+            'withdrawalMustBeSigned': False},
     ]

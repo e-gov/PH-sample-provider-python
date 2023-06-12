@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION function_create_mandate(
+CREATE OR REPLACE FUNCTION paasuke_add_mandate(
     p_representee_identifier TEXT,
     p_representee_first_name TEXT,
     p_representee_surname TEXT,
@@ -16,8 +16,6 @@ CREATE OR REPLACE FUNCTION function_create_mandate(
     p_validity_period_through DATE,
     p_can_sub_delegate BOOLEAN,
     p_created_by TEXT,
-    p_created_by_represented_person TEXT,
-    p_original_mandate_id INTEGER,
     p_document_uuid TEXT,
     p_can_display_document_to_delegate BOOLEAN
 ) RETURNS VOID AS $$
@@ -31,14 +29,14 @@ DECLARE
     v_delegate_code TEXT := SUBSTRING(p_delegate_identifier FROM 3);
     v_delegate_country TEXT := SUBSTRING(p_delegate_identifier FROM 1 FOR 2);
 
-    rec_role_conf roles_view%ROWTYPE;
+    rec_role_conf paasuke_roles_view%ROWTYPE;
 
 BEGIN
 
-    SELECT * INTO rec_role_conf FROM roles_view WHERE code = p_role;
+    SELECT * INTO rec_role_conf FROM paasuke_roles_view WHERE code = p_role;
 
     IF rec_role_conf.code IS NULL THEN
-        RAISE 'There is no role with code=% defined in roles_view', p_role USING ERRCODE = '23010';
+        RAISE 'There is no role with code=% defined in paasuke_roles_view', p_role USING ERRCODE = '23010';
     end if;
 
 
@@ -67,10 +65,8 @@ BEGIN
 
 -- Insert mandate record
     INSERT INTO mandate (representee_id, delegate_id, role, validity_period_from, validity_period_through,
-                         can_sub_delegate, created_by, created_by_represented_person,
-                         original_mandate_id, document_uuid, can_display_document_to_delegate)
+                         can_sub_delegate, created_by, document_uuid, can_display_document_to_delegate)
     VALUES (v_representee_id, v_delegate_id, p_role, p_validity_period_from::DATE, p_validity_period_through::DATE,
-            p_can_sub_delegate, p_created_by, p_created_by_represented_person,
-            p_original_mandate_id, p_document_uuid, p_can_display_document_to_delegate);
+            p_can_sub_delegate, p_created_by, p_document_uuid, p_can_display_document_to_delegate);
 END;
 $$ LANGUAGE PLPGSQL;

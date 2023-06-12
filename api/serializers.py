@@ -2,18 +2,18 @@ def serialize_delegate_mandates(delegate, representees, settings):
     data = []
     for representee in representees:
         item = {
+            'representee': {
+                'identifier': representee['representee_identifier'],
+                'legalName': representee['representee_legal_name'],
+                'type': representee['representee_type']
+            },
             'delegate': {
                 'firstName': delegate['delegate_first_name'],
                 'identifier': delegate['delegate_identifier'],
                 'surname': delegate['delegate_surname'],
                 'type': delegate['delegate_type']
             },
-            'mandates': [],
-            'representee': {
-                'identifier': representee['representee_identifier'],
-                'legalName': representee['representee_legal_name'],
-                'type': representee['representee_type']
-            }
+            'mandates': []
         }
         for mandate in representee['mandates']:
             mandate_data = serialize_mandate(representee, delegate, mandate, settings)
@@ -26,9 +26,9 @@ def serialize_representee_mandates(representee, delegates, settings):
     response_data = []
     for delegate in delegates:
         item = {
+            'representee': serialize_item_by_type(representee, 'representee'),
             'delegate': serialize_item_by_type(delegate, 'delegate'),
             'mandates': [],
-            'representee': serialize_item_by_type(representee, 'representee'),
         }
         for mandate in delegate['mandates']:
             mandate_data = serialize_mandate(representee, delegate, mandate, settings)
@@ -87,23 +87,10 @@ def serialize_mandate(representee, delegate, mandate, settings):
     mandate_data = {
         'links': links,
         'role': mandate['role'],
-        **({'subDelegatorIdentifier': mandate['created_by_represented_person']}
-            if mandate['original_mandate_id'] and mandate['created_by_represented_person'] else {}),
+        **({'subDelegatorIdentifier': mandate['subdelegated_by_identifier']}
+            if mandate['subdelegated_by_identifier'] else {}),
         **({'validityPeriod': validity_period}
             if validity_period else {}),
     }
     return mandate_data
 
-
-def set_subdelegate_link(mandate, representee, delegate):
-    representee_id = representee['representee_id']
-    delegate_id = delegate['delegate_id']
-    mandate_id = mandate['mandate_id']
-    return f'/v1/representees/{representee_id}/delegates/{delegate_id}/mandates/{mandate_id}/subdelegates'
-
-
-def set_delete_link(mandate, representee, delegate):
-    representee_id = representee['representee_id']
-    delegate_id = delegate['delegate_id']
-    mandate_id = mandate['mandate_id']
-    return f'/v1/representees/{representee_id}/delegates/{delegate_id}/mandates/{mandate_id}'

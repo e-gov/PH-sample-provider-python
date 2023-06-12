@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION function_delete_mandate(
+CREATE OR REPLACE FUNCTION paasuke_delete_mandate(
     p_representee_id TEXT,
     p_delegate_id TEXT,
     p_mandate_id TEXT

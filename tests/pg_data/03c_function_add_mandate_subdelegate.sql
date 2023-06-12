@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION function_insert_mandate_subdelegate(
+CREATE OR REPLACE FUNCTION paasuke_add_mandate_subdelegate(
     p_representee_id TEXT,
     p_delegate_id TEXT,
     p_mandate_id TEXT,
@@ -28,10 +28,6 @@ DECLARE
     v_validity_period_from mandate.validity_period_from%TYPE := p_validity_period_from;
 
 BEGIN
-
-
-
-
         SELECT *
         INTO rec_existing_mandate
         FROM mandate
