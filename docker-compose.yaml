@@ -21,7 +21,7 @@ services:
       depends_on:
         - postgres
       ports:
-        - 5002:5000
+        - 8082:8082
       environment:
         FLASK_ENV: development
       volumes:

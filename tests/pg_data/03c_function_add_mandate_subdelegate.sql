@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION function_insert_mandate_subdelegate(
+CREATE OR REPLACE FUNCTION paasuke_add_mandate_subdelegate(
     p_representee_id TEXT,
     p_delegate_id TEXT,
     p_mandate_id TEXT,
@@ -10,7 +10,6 @@ CREATE OR REPLACE FUNCTION function_insert_mandate_subdelegate(
     p_validity_period_from DATE,
     p_validity_period_through DATE,
     p_created_by TEXT,
-    p_created_by_represented_person TEXT,
     p_document_uuid TEXT,
     p_can_display_document_to_delegate BOOLEAN
 ) RETURNS BOOLEAN AS
@@ -28,10 +27,6 @@ DECLARE
     v_validity_period_from mandate.validity_period_from%TYPE := p_validity_period_from;
 
 BEGIN
-
-
-
-
         SELECT *
         INTO rec_existing_mandate
         FROM mandate
@@ -81,11 +76,9 @@ BEGIN
 
 
     INSERT INTO mandate (representee_id, delegate_id, role, validity_period_from, validity_period_through,
-                         can_sub_delegate, created_by, created_by_represented_person,
-                         original_mandate_id, document_uuid, can_display_document_to_delegate)
+                         can_sub_delegate, created_by,  original_mandate_id)
     VALUES (v_representee_id, v_sub_delegate_id, rec_existing_mandate.role, v_validity_period_from::DATE, p_validity_period_through::DATE,
-            FALSE, p_created_by, p_created_by_represented_person,
-            rec_existing_mandate.id, p_document_uuid, p_can_display_document_to_delegate);
+            FALSE, p_created_by, rec_existing_mandate.id);
 
     RETURN TRUE;
 END;

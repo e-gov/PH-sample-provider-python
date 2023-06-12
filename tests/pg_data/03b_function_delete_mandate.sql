@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION function_delete_mandate(
+CREATE OR REPLACE FUNCTION paasuke_delete_mandate(
     p_representee_id TEXT,
     p_delegate_id TEXT,
     p_mandate_id TEXT
@@ -13,7 +13,7 @@ END IF;
 UPDATE mandate
   SET deleted = TRUE
 WHERE id = CAST(p_mandate_id as INTEGER)
-  AND representee_id = p_representee_id
+  AND representee_id = CAST(p_representee_id AS INTEGER)
   AND delegate_id = CAST(p_delegate_id AS INTEGER);
 IF FOUND THEN
           RETURN TRUE;
