@@ -1,27 +1,24 @@
+# Sample Provider for Pääsuke (Python)
 
-# Adapter application (Python)
+This application is an adapter for [Pääsuke](https://github.com/e-gov/PH) written in Python Flask
+and Postgres functions.
 
-This application is an adapter for [Pääsuke](https://github.com/e-gov/PH) written in Python Flask.
-This can be used by a party who keeps mandates on their side and offers a standard web service
+This can be used (as a baseline) by a party who keeps mandates on their side and offers a standard web service
 for Pääsuke for it to query mandates.
 
-The idea is that there is a Postgres database that keeps the data.
-Into that Postgres database we create view and stored procedures that this app calls.
+The application uses a Postgres database for storing the data
+Into that Postgres database we create view and stored functions that this app calls.
+So anyone who keeps their data in a relation database could adapt a similar pattern.
 
 ## Sequence diagram illustrating the application
 ![Sequence diagram](doc/sequence-diagram-pr.png)
 
 
-## How this application differs from mocks
+## Running
 
-There is an application that mimics the different parties:
-https://github.com/e-gov/PH/tree/main/ph-xroad-api-mock
-The mock does not keep state. This application does.
-
-## Prerequisite
-
-Use Docker-compose to start up a Postgres database.
-This database has a few tables to sore information about mandates.
+Use Docker-compose to start up a Postgres database and the application.
+The scripts create a few tables to sore information about mandates and views and functions to interact
+with this data.
 
 
 ## How this app was made
@@ -233,8 +230,6 @@ curl --location --request PUT 'http://127.0.0.1:8082/v1/representees/100001/dele
     "singleDelegate": true
   }
 }'
-
-
 ```
 
 
