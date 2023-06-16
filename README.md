@@ -4,15 +4,15 @@ This application is an adapter for [Pääsuke](https://github.com/e-gov/PH) writ
 and Postgres functions.
 
 This can be used (as a baseline) by a party who keeps mandates on their side and offers a standard web service
-for Pääsuke for it to query mandates.
+for Pääsuke for it to add new mandates, query existing mandates end their validity.
 
-The application uses a Postgres database for storing the data
-Into that Postgres database we create view and stored functions that this app calls.
-So anyone who keeps their data in a relation database could adapt a similar pattern.
+The application uses a Postgres database for storing the data.
+Into that Postgres database, the scripts create some views and stored functions that the Python app calls.
+So anyone who keeps their data in a relation database could adapt a similar pattern
+and create their own database views and stored functions.
 
 ## Sequence diagram illustrating the application
 ![Sequence diagram](doc/sequence-diagram-pr.png)
-
 
 ## Running the built docker image
 
