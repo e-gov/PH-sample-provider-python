@@ -14,7 +14,17 @@ So anyone who keeps their data in a relation database could adapt a similar patt
 ![Sequence diagram](doc/sequence-diagram-pr.png)
 
 
-## Running
+## Running the built docker image
+
+Every time this repository is tag-ed with a new version,
+GitHub Actions builds a public Docker image and uploads it to GitHub Container Registry (ghcr.io)
+See [the details of recent actions](https://github.com/e-gov/PH-sample-provider-python/actions) and [the list of tags](https://github.com/e-gov/PH-sample-provider-python/tags).
+
+For example, one can get the version 0.9.0 like this:
+`docker pull ghcr.io/e-gov/ph-sample-provider-python:v0.9.0`
+`docker pull --platform linux/x86_64 ghcr.io/e-gov/ph-sample-provider-python:v0.9.0` (Mac)
+
+## Running locally
 
 Use Docker-compose to start up a Postgres database and the application.
 The scripts create a few tables to sore information about mandates and views and functions to interact
