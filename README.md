@@ -31,12 +31,6 @@ The scripts create a few tables to sore information about mandates and views and
 with this data.
 
 
-## How this app was made
-
-1. Open https://app.swaggerhub.com/apis/aasaru/x-road-services-consumed-by-paasuke/0.8.0#/
-2. Export server stub -> python flask
-
-
 ## Configuration
 
 ## How to run API app in development environment
