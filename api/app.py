@@ -110,7 +110,6 @@ def create_app():
                methods=['POST'])
     def post_representee_delegate_mandate(representee_identifier, delegate_identifier):
         xroad_user_id = request.headers.get('X-Road-UserId')
-        xroad_represented_party = request.headers.get('X-Road-Represented-Party')
         app.logger.info(f'X-Road-UserId: {xroad_user_id} is about to add a mandate')
 
         error_config = app.config['SETTINGS']['errors']['legal_person_format_validation_failed']

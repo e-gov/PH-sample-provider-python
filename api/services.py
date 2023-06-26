@@ -173,8 +173,7 @@ def extract_mandate_data(payload):
     data['data_created_by'] = data_.get('createdBy', '')
     data['data_original_mandate_id'] = data_.get('originalMandateId')
     data['document_uuid'] = document.get('uuid')
-    if document.get('singleDelegate') and document.get('uuid'):
-        data['data_can_display_document_to_delegate'] = True
+    data['data_can_display_document_to_delegate'] = bool(document.get('singleDelegate') and document.get('uuid'))
 
     return data
 
