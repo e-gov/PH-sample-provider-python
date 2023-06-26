@@ -1,7 +1,8 @@
 Flask==2.3.2
 Flask-SQLAlchemy==3.0.3
-psycopg2-binary==2.9.6
 SQLAlchemy==2.0.12
+flask_swagger_ui==4.11.1
+psycopg2-binary==2.9.6
 pytest==7.3.1
 Cerberus==1.3.4
 PyYAML==6.0

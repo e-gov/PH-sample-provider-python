@@ -3,6 +3,7 @@ import psycopg2
 import yaml
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
+from flask_swagger_ui import get_swaggerui_blueprint
 
 from api.exceptions import (CompanyCodeInvalid,
                             ErrorConfigBase, MandateDataInvalid,
@@ -39,6 +40,17 @@ def create_app():
     app.config.from_envvar('APP_SETTINGS')
     db.init_app(app)
     app.config['SETTINGS'] = parse_settings(app.config['SETTINGS_PATH'])
+
+    SWAGGER_URL = "/v1/api-docs"
+    API_URL = "/static/aasaru-x-road-services-consumed-by-paasuke-0.9.3-resolved.json"
+    SWAGGER_BLUEPRINT = get_swaggerui_blueprint(
+        SWAGGER_URL,
+        API_URL,
+        config={
+            'app_name': "X-road services consumed by Pääsuke"
+        }
+    )
+    app.register_blueprint(SWAGGER_BLUEPRINT, url_prefix=SWAGGER_URL)
 
     app.errorhandler(ActionInvalid)(create_error_handler(501))
     app.errorhandler(CompanyCodeInvalid)(create_error_handler(400))
