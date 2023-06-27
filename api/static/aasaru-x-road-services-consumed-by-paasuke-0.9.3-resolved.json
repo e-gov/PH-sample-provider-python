@@ -1,0 +1,1328 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "X-road services consumed by Pääsuke",
+    "description": "<p>X-road services that are standardized by Pääsuke but offered by other parties (like Tax and Customs Board) and consumed by Pääsuke.</p><p>To download the API descriptions from the right menu choose either Export -&gt; Download API -&gt; YAML Resolved (or JSON Resolved) or you can export a server stub in your favourite programming language.</p>More info can be found at <a href=\"https://github.com/e-gov/PH/\">github.com/e-gov/PH</a>.",
+    "license": {
+      "name": "Licensed under Apache 2.0 license",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "version": "0.9.3"
+  },
+  "servers": [
+    {
+      "url": "https://virtserver.swaggerhub.com/aasaru/x-road-services-consumed-by-paasuke/0.9.3",
+      "description": "SwaggerHub API Auto Mocking"
+    }
+  ],
+  "paths": {
+    "/delegates/{delegate}/representees/mandates": {
+      "get": {
+        "summary": "List persons the delegate can represent. Mandates (roles) are included in the response.",
+        "description": "",
+        "operationId": "getDelegateRepresenteesWithMandates",
+        "parameters": [
+          {
+            "name": "delegate",
+            "in": "path",
+            "description": "<b>Identifier of the delegate (volituste saaja).</b> Can be one of the follwing&colon; <p>a)  'EE' followed by 8-digit legal entity code from Estonian Business Registry</p> <p>b) 'EE' followed by 11-digit national identity number</p> <p>c) Two-letter country code followed by eIDAS identification (1...254 symbols) - Pääsuke uses the value that was returned by Tara when the person logged into eesti.ee portal.</p>",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "EE38302250123"
+          },
+          {
+            "name": "X-Road-UserId",
+            "in": "header",
+            "description": "User identifier whose action initiated the request. This also can be an employee of RIA using some back-end.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "EE39912310123"
+          },
+          {
+            "name": "X-Road-Represented-Party",
+            "in": "header",
+            "description": "When service client represents third party while issuing a query then it must be filled with identifier of that third party. When service client represents itself then this header is omitted.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "EE12345678"
+          },
+          {
+            "name": "X-Road-Id",
+            "in": "header",
+            "description": "Unique identifier (UUID) for this message.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "123e4567-e89b-12d3-a456-42661417400"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "MandateTriplets that match query parameters. If there are no mandates to return for this representee or delegate then empty list should be returned. MandateTriplet consists of 3 parts&colon;\n<ol>\n  <li>representee (volitaja)</li>\n  <li>delegate (volitatu)</li>\n  <li>list of mandates that are currently valid or become valid in the future.</li></ol>\nProperties of a mandate:\n<ul>\n  <li><b>role</b></li>\n  <li><b>validityPeriod</b> - if this value is present it must have either validFrom, validThrough or both. If the valid through date is in the past the mandate must not be returned at all. The value of validThrough must be to the last date the mandate is valid (like 31.12.2029). If the mandate is valid indefinitely then validThrough must be omitted.</li>\n  <li><b>canSubDlegate</b> - it is true if the person has given this mandate with the right to further sub-delegate it. Otherwise the value is false or not returned at all.</li>\n  <li><b>subDelegatorIdentifier</b> - precence of this value indicates that this mandate has been created by adding a sub-delegate to some other mandate. The value of this property indicates who was the delegate of the original mandate.</li>\n  </ul>\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MandateTriplet"
+                  }
+                },
+                "example": [
+                  {
+                    "representee": {
+                      "type": "LEGAL_PERSON",
+                      "legalName": "Väikefirma OÜ",
+                      "identifier": "EE12345678"
+                    },
+                    "delegate": {
+                      "type": "NATURAL_PERSON",
+                      "firstName": "Jüri",
+                      "surname": "Juurikas",
+                      "identifier": "EE38302250123"
+                    },
+                    "mandates": [
+                      {
+                        "role": "EMTA:HAMPI",
+                        "validityPeriod": {
+                          "from": "2017-07-21",
+                          "through": "2028-12-31"
+                        },
+                        "subDelegatorIdentifier": "EE12345678",
+                        "links": {
+                          "delete": "/v1/nss/EMTA/representees/int-EE12345678/delegates/int-EE38302250123/mandates/int-mandate-123",
+                          "addSubDelegate": "/v1/nss/EMTA/representees/int-EE12345678/delegates/int-EE38302250123/mandates/int-mandate-123/subdelegates",
+                          "origin": "https://vaarikas.emta.ee/view/int-mandate-123"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "bad input parameter"
+          },
+          "403": {
+            "description": "Forbidden. Request not authorized..."
+          }
+        }
+      }
+    },
+    "/representees/{representee}/delegates/mandates": {
+      "get": {
+        "summary": "List delegates who have any mandates that are currently valid or become valid in the future.",
+        "description": "",
+        "operationId": "getRepresenteeDelegatesWithMandates",
+        "parameters": [
+          {
+            "name": "representee",
+            "in": "path",
+            "description": "<b>Identifier of the representee (volitaja).</b> Can be one of the follwing&colon; <p>a)  'EE' followed by 8-digit legal entity code from Estonian Business Registry</p> <p>b) 'EE' followed by 11-digit national identity number</p> <p>c) Two-letter country code followed by eIDAS identification (1...254 symbols) - Pääsuke uses the value that was returned by Tara when the person logged into eesti.ee portal.</p>",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "EE10391131"
+          },
+          {
+            "name": "subDelegatedBy",
+            "in": "query",
+            "description": "<p><b>To add a filter to results so that only mandates that were sub-delegated by this person (edasivolitaja) would be returned.</b></p>\n<p>This is to cover the following use case. Let's say LittleCompany has given BookkeepingCompany some role together with the right for BookkeepingCompany to further sub-delegate the role to its employees.</p>\n<p>BookkeepingCompany can use this query to get the list of its employees who have received this role from BookkeepingCompany through sub-delegation.</p>\n<p>To display this list Pääsuke makes a query  where representee={LittleCompanyIdentifier} and subDelegatedBy={BookkeepingCompanyIdentifier}.</p>",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "EE10391132"
+          },
+          {
+            "name": "delegate",
+            "in": "query",
+            "description": "Only return mandates with this delegate (volitatu). This is used for TÖR queries.",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "EE10391132"
+          },
+          {
+            "name": "X-Road-UserId",
+            "in": "header",
+            "description": "User identifier whose action initiated the request. This also can be an employee of RIA using some back-end.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "EE39912310123"
+          },
+          {
+            "name": "X-Road-Represented-Party",
+            "in": "header",
+            "description": "When service client represents third party while issuing a query then it must be filled with identifier of that third party. When service client represents itself then this header is omitted.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "EE12345678"
+          },
+          {
+            "name": "X-Road-Id",
+            "in": "header",
+            "description": "Unique identifier (UUID) for this message.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "123e4567-e89b-12d3-a456-42661417400"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "MandateTriplets that match query parameters. If there are no mandates to return for this representee or delegate then empty list should be returned. MandateTriplet consists of 3 parts&colon;\n<ol>\n  <li>representee (volitaja)</li>\n  <li>delegate (volitatu)</li>\n  <li>list of mandates that are currently valid or become valid in the future.</li></ol>\nProperties of a mandate:\n<ul>\n  <li><b>role</b></li>\n  <li><b>validityPeriod</b> - if this value is present it must have either validFrom, validThrough or both. If the valid through date is in the past the mandate must not be returned at all. The value of validThrough must be to the last date the mandate is valid (like 31.12.2029). If the mandate is valid indefinitely then validThrough must be omitted.</li>\n  <li><b>canSubDlegate</b> - it is true if the person has given this mandate with the right to further sub-delegate it. Otherwise the value is false or not returned at all.</li>\n  <li><b>subDelegatorIdentifier</b> - precence of this value indicates that this mandate has been created by adding a sub-delegate to some other mandate. The value of this property indicates who was the delegate of the original mandate.</li>\n  </ul>\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MandateTriplet"
+                  }
+                },
+                "example": [
+                  {
+                    "representee": {
+                      "type": "LEGAL_PERSON",
+                      "legalName": "Väikefirma OÜ",
+                      "identifier": "EE12345678"
+                    },
+                    "delegate": {
+                      "type": "NATURAL_PERSON",
+                      "firstName": "Jüri",
+                      "surname": "Juurikas",
+                      "identifier": "EE38302250123"
+                    },
+                    "mandates": [
+                      {
+                        "role": "EMTA:HAMPI",
+                        "validityPeriod": {
+                          "from": "2017-07-21",
+                          "through": "2028-12-31"
+                        },
+                        "subDelegatorIdentifier": "EE12345678",
+                        "links": {
+                          "delete": "/v1/nss/EMTA/representees/int-EE12345678/delegates/int-EE38302250123/mandates/int-mandate-123",
+                          "addSubDelegate": "/v1/nss/EMTA/representees/int-EE12345678/delegates/int-EE38302250123/mandates/int-mandate-123/subdelegates",
+                          "origin": "https://vaarikas.emta.ee/view/int-mandate-123"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad input parameter"
+          },
+          "403": {
+            "description": "Forbidden. Request not authorized."
+          },
+          "422": {
+            "description": "Unprocessable request. Something went wrong.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Problem"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/representees/{representee}/delegates/{delegate}/mandates": {
+      "post": {
+        "summary": "Add a mandate to a delegate under a representee",
+        "description": "<p>This query is for the following use-case. The end user (in our example EE39912310123) logs into Pääsuke (that runs under www.eesti.ee) and adds a mandate from there (for example the end user adds \"GLOBAL1_EMTA:ACCOUNTANT\" role (with the right to further sub-delegate it) for the company accountant Jüri Juurikas). After end user confirms adding of the mandate then Pääsuke makes this POST request for each mandate.</p> <p>NB! The end user can only add mandates that have assignableBy in the role definition and the end user must have one of the roles.</p>\n",
+        "operationId": "addMandate",
+        "parameters": [
+          {
+            "name": "representee",
+            "in": "path",
+            "description": "<b>Identifier of the representee (volitaja).</b> Can be one of the follwing&colon; <p>a)  'EE' followed by 8-digit legal entity code from Estonian Business Registry</p> <p>b) 'EE' followed by 11-digit national identity number</p> <p>c) Two-letter country code followed by eIDAS identification (1...254 symbols) - Pääsuke uses the value that was returned by Tara when the person logged into eesti.ee portal.</p>",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "EE10391131"
+          },
+          {
+            "name": "delegate",
+            "in": "path",
+            "description": "<b>Identifier of the delegate (volituste saaja).</b> Can be one of the follwing&colon; <p>a)  'EE' followed by 8-digit legal entity code from Estonian Business Registry</p> <p>b) 'EE' followed by 11-digit national identity number</p> <p>c) Two-letter country code followed by eIDAS identification (1...254 symbols) - Pääsuke uses the value that was returned by Tara when the person logged into eesti.ee portal.</p>",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "EE38302250123"
+          },
+          {
+            "name": "X-Road-UserId",
+            "in": "header",
+            "description": "User identifier whose action initiated the request. This also can be an employee of RIA using some back-end.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "EE39912310123"
+          },
+          {
+            "name": "X-Road-Represented-Party",
+            "in": "header",
+            "description": "When service client represents third party while issuing a query then it must be filled with identifier of that third party. When service client represents itself then this header is omitted.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "EE12345678"
+          },
+          {
+            "name": "X-Road-Id",
+            "in": "header",
+            "description": "Unique identifier (UUID) for this message.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "123e4567-e89b-12d3-a456-42661417400"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/AddMandateTriplet"
+        },
+        "responses": {
+          "201": {
+            "description": "The request was fulfilled and the new mandate was created."
+          },
+          "202": {
+            "description": "Accepted for processing but not immediately created."
+          },
+          "400": {
+            "description": "Incorrect format of the payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Problem"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden. Request not authorized."
+          },
+          "422": {
+            "description": "Unprocessable request. Something went wrong.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Problem"
+                  }
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "This request is not supported."
+          }
+        }
+      }
+    },
+    "/representees/{representeeId}/delegates/{delegateId}/mandates/{mandateId}/subdelegates": {
+      "post": {
+        "summary": "Sub-delegate a single mandate",
+        "description": "To add a sub-delegate for a specific mandate. The values of representeeId, delegateId and mandateId are taken from the output of the Mandate, from the 'addSubDelegate' link.\n",
+        "operationId": "addSubDelegate",
+        "parameters": [
+          {
+            "name": "representeeId",
+            "in": "path",
+            "description": "Implementator can use any form of representee identifier (like internal person id). Pääsuke takes this value from 'addSubDelegate' link.",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "EE10391131"
+          },
+          {
+            "name": "delegateId",
+            "in": "path",
+            "description": "Implementator can use any form of delegate identifier (like internal person id). Pääsuke takes this value from 'addSubDelegate' link.",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "EE38302250123"
+          },
+          {
+            "name": "mandateId",
+            "in": "path",
+            "description": "Implementator can use any form of mandate (or role) identifier (like internal mandate id). Pääsuke takes this value from 'addSubDelegate' link.",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": 8923032032
+          },
+          {
+            "name": "X-Road-UserId",
+            "in": "header",
+            "description": "User identifier whose action initiated the request. This also can be an employee of RIA using some back-end.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "EE39912310123"
+          },
+          {
+            "name": "X-Road-Represented-Party",
+            "in": "header",
+            "description": "When service client represents third party while issuing a query then it must be filled with identifier of that third party. When service client represents itself then this header is omitted.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "EE12345678"
+          },
+          {
+            "name": "X-Road-Id",
+            "in": "header",
+            "description": "Unique identifier (UUID) for this message.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "123e4567-e89b-12d3-a456-42661417400"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/MandateToSubDelegate"
+        },
+        "responses": {
+          "200": {
+            "description": "Created"
+          },
+          "202": {
+            "description": "Accepted for processing but yet not added"
+          },
+          "403": {
+            "description": "Forbidden. Request not authorized."
+          },
+          "404": {
+            "description": "Endpoint was not found."
+          },
+          "422": {
+            "description": "Unprocessable request. Something went wrong. If mandate was not found then the system should retrun this response together with translation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Problem"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Reserved for errors returned by security server."
+          },
+          "501": {
+            "description": "This operation is not supported."
+          }
+        }
+      }
+    },
+    "/representees/{representeeId}/delegates/{delegateId}/mandates/{mandateId}": {
+      "put": {
+        "summary": "Edit mandate (by ending the validity of it)",
+        "description": "To edit a mandate, currently the only supported action is DELETE which means ending the validity of the mandate. The values of representeeId, delegateId and mandateId are taken from the output of the Mandate, from the delete link.\n",
+        "operationId": "editMandate",
+        "parameters": [
+          {
+            "name": "representeeId",
+            "in": "path",
+            "description": "Implementator can use any form of representee identifier (like internal person id). Pääsuke takes this value from 'delete' link.",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "EE12345678-123"
+          },
+          {
+            "name": "delegateId",
+            "in": "path",
+            "description": "Implementator can use any form of delegate identifier (like internal person id). Pääsuke takes this value from 'delete' link.",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": 754864
+          },
+          {
+            "name": "mandateId",
+            "in": "path",
+            "description": "Implementator can use any form of mandate (or role) identifier (like internal mandate id). Pääsuke takes this value from 'delete' link.",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": 8647
+          },
+          {
+            "name": "X-Road-UserId",
+            "in": "header",
+            "description": "User identifier whose action initiated the request. This also can be an employee of RIA using some back-end.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "EE39912310123"
+          },
+          {
+            "name": "X-Road-Represented-Party",
+            "in": "header",
+            "description": "When service client represents third party while issuing a query then it must be filled with identifier of that third party. When service client represents itself then this header is omitted.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "EE12345678"
+          },
+          {
+            "name": "X-Road-Id",
+            "in": "header",
+            "description": "Unique identifier (UUID) for this message.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "123e4567-e89b-12d3-a456-42661417400"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/DeleteMandate"
+        },
+        "responses": {
+          "200": {
+            "description": "Deleted sucessfully"
+          },
+          "202": {
+            "description": "Request accepted but not yet deleted"
+          },
+          "400": {
+            "description": "Invalid parameter"
+          },
+          "403": {
+            "description": "Forbidden. Request not authorized."
+          },
+          "404": {
+            "description": "Resource to delete was not found."
+          },
+          "422": {
+            "description": "Unprocessable request. Something went wrong.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Problem"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "This error code is reserved for security server."
+          },
+          "501": {
+            "description": "This operation is not supported."
+          }
+        }
+      }
+    },
+    "/roles": {
+      "get": {
+        "summary": "List roles with translations and with information whom this role can be assigned to and on what conditions the role can be assigned or deleted.",
+        "description": "When 'If-Modified-Since' is included in the request the service can respond with HTTP Status code 304 if nor roles have been changed since that time. If there have been changes to roles (the provider does not support this parameter) all results (that match the filters) are returned (even the ones that have modified time earlier than If-Modified-Since parameter)\n",
+        "operationId": "getRoles",
+        "parameters": [
+          {
+            "name": "If-Modified-Since",
+            "in": "header",
+            "required": false,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2022-10-18T17:32:28+02:00"
+            }
+          },
+          {
+            "name": "X-Road-Id",
+            "in": "header",
+            "description": "Unique identifier (UUID) for this message.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "123e4567-e89b-12d3-a456-42661417400"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "<p>Return all roles that might be used by other queries.</p>\n<p><b>modified</b> - when this role definition was last modified. It is highly recommended to include this value in the response.</p>\n<p><b>canSubDelegate</b> - can this role be given out with the right to sub-delegate it further</p>\n<p><b>representeeType</b> - one of [NATURAL_PERSON, LEGAL_PERSON, GOVERNMENT_PERSON] - who can be representee for this role. If representeeType is missing from the role definition then it cannot be assigned from Pääsuke.</p>\n<p><b>delegateType</b> -  one of [LEGAL_PERSON, NATURAL_PERSON ]. Type of persons this role can be assigned to. If delegateType is missing from the role definition then it cannot be assigned from Pääsuke.</p>\n<p><b>assignableBy</b> - list of roles that are allowed to assign this role. The person who wants to add this role needs to have at least one of listed oles. If the value is empty then this role cannot be assigned from Pääsuke.<br/>\nNote&colon; Assigning a role through MISP2 portal. Pääsuke allows adding roles through MISP2 portal (this is a different portal than eesti.ee). If a role must be assignable from there then assignableBy must include \"MISP2&colon;MISP2_USER\".</p>\n<p><b>validityPeriodFromNotInFuture</b> - If true then Pääsuke UI restricts setting validityPeriod.from into the future when adding a new mandate. If adding a sub-delegate is allowed then this check is also applied when adding a sub-delegate.</p>\n<p><b>validityPeriodThroughMustBeUndefined</b> - If true then Pääsuke UI forces setting validityPeriod.through to infinity. If adding a sub-delegate is allowed then this check is also applied when adding a sub-delegate.</p>\n<p><b>withdrawableBy</b> - list of role codes that are allowed to delete this mandate. If this is missing then assignableBy roles are used instead.</p>\n<p><b>visible</b> - by default all mandates are visible but there are cases when role can be added if user has some property that is not a mandate. Then invisible roles can be used to carry this property.</p>\n<p><b>assignableOnlyIfRepresenteeHasRoleIn</b> - If this configuration parameter has a value then the check is done in addition to the assignableBy check (delegate must have a role in the assignableBy list). <br/>Defining this list is used in rare cases (like eesti.ee RR partner services) where in order to assign the role, the <u>representee</u> also must have at least one role in this list.</p>\n<p><b>delegateCanEqualToRepresentee  </b> - If this is set to true then in the admin portal (MISP2) it is possible to create mandates with this role where the value of representee equals to the value of delegate. This functionality is used for the eesti.ee RR partner services. These types of roles where representee=delegate can only be deleted from the MISP2 admin portal (so in eesti.ee they are displayed as read-only).</p>\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RoleDefinition"
+                  }
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "List of roles is not modified. Might be returned only if request sent additional header \"If-Modified-Since\" and no changes have been done since that date."
+          },
+          "403": {
+            "description": "Forbidden. Request not authorized."
+          },
+          "503": {
+            "description": "Service is temporarily unavailable"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "MandateTriplet": {
+        "required": [
+          "delegate",
+          "mandates",
+          "representee"
+        ],
+        "type": "object",
+        "properties": {
+          "representee": {
+            "$ref": "#/components/schemas/Person"
+          },
+          "delegate": {
+            "$ref": "#/components/schemas/Person"
+          },
+          "mandates": {
+            "type": "array",
+            "description": "Mandates",
+            "items": {
+              "$ref": "#/components/schemas/Mandate"
+            }
+          }
+        }
+      },
+      "Person": {
+        "required": [
+          "identifier",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Person type",
+            "enum": [
+              "NATURAL_PERSON",
+              "LEGAL_PERSON",
+              "UNKNOWN",
+              "OTHER"
+            ]
+          },
+          "firstName": {
+            "type": "string",
+            "description": "Person given name(s)",
+            "format": "string",
+            "example": "Jüri"
+          },
+          "surname": {
+            "type": "string",
+            "description": "Person surname",
+            "format": "string",
+            "example": "Juurikas"
+          },
+          "legalName": {
+            "type": "string",
+            "description": "Name of legal entity",
+            "format": "string",
+            "example": "Juurikas"
+          },
+          "identifier": {
+            "type": "string",
+            "description": "Identity code",
+            "example": "EE38302250123"
+          }
+        }
+      },
+      "Mandate": {
+        "required": [
+          "role"
+        ],
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "Role",
+            "format": "string",
+            "example": "STAT:Legal_person_data_viewer_package"
+          },
+          "validityPeriod": {
+            "$ref": "#/components/schemas/ValidityPeriod"
+          },
+          "links": {
+            "$ref": "#/components/schemas/MandateLinks"
+          },
+          "subDelegatorIdentifier": {
+            "type": "string",
+            "description": "Identifier of the person who created this mandate through sub-delegation.",
+            "example": "EE12345678"
+          }
+        }
+      },
+      "ValidityPeriod": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "description": "First day of being in effect. If null then is already valid or becomes valid immediately after being added.",
+            "format": "date",
+            "example": "2028-01-01"
+          },
+          "through": {
+            "type": "string",
+            "description": "Valid through (last day is inclusive). If no value is set (null) then valid indefinitely.",
+            "format": "date",
+            "example": "2030-12-31"
+          }
+        }
+      },
+      "MandateLinks": {
+        "type": "object",
+        "properties": {
+          "delete": {
+            "type": "string",
+            "example": "/v1/nss/{ns}/representees/{representeeId}/delegates/{delegateId}/mandates/{mandateId}"
+          },
+          "addSubDelegate": {
+            "type": "string",
+            "example": "/v1/nss/{ns}/representees/{representee}/delegates/{delegate}/mandates/{mandateId}/subdelegates"
+          },
+          "origin": {
+            "type": "string",
+            "example": "https://vaarikas.emta.ee/view/123"
+          }
+        }
+      },
+      "Problem": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "An absolute URI that identifies the problem type",
+            "format": "uri",
+            "default": "about:blank"
+          },
+          "href": {
+            "type": "string",
+            "description": "An absolute URI that, when dereferenced, provides human-readable documentation for the problem type (e.g. using HTML).",
+            "format": "uri"
+          },
+          "title": {
+            "type": "string",
+            "description": "A short summary of the problem type. Written in English and readable for engineers (usually not suited for non technical stakeholders and not localized).",
+            "example": "Service Unavailable"
+          },
+          "translation": {
+            "$ref": "#/components/schemas/Translation"
+          },
+          "instance": {
+            "type": "string",
+            "description": "Reference that identifies the specific occurrence of the problem. UI should display this without dashes.",
+            "format": "uri"
+          }
+        },
+        "description": "A Problem Details object (RFC 7807)",
+        "example": {
+          "type": "urn:problem-type:ee.ria.pääsuke:mandateDeletingFailed",
+          "href": "https://www.ria.ee/specification/rest/api-guide/problems/payloadTooLarge.html",
+          "title": "Deleting of the role failed",
+          "translation": {
+            "et": "Volituse kustutamine ebaõnnestus",
+            "en": "Deleting of the mandate failed",
+            "ru": "Volituse kustutamine ebaõnnestus (ru)"
+          },
+          "instance": "urn:uuid:123e4567-e89b-12d3-a456-426614174000"
+        }
+      },
+      "Translation": {
+        "required": [
+          "et"
+        ],
+        "type": "object",
+        "properties": {
+          "et": {
+            "type": "string",
+            "description": "Translation in Estonian",
+            "example": "Tere"
+          },
+          "en": {
+            "type": "string",
+            "description": "Translation in English",
+            "example": "Hello"
+          },
+          "ru": {
+            "type": "string",
+            "description": "Translation in Russian",
+            "example": "Привет"
+          }
+        }
+      },
+      "AddMandateTriplet": {
+        "required": [
+          "delegate",
+          "mandates",
+          "representee"
+        ],
+        "type": "object",
+        "properties": {
+          "representee": {
+            "$ref": "#/components/schemas/Person"
+          },
+          "delegate": {
+            "$ref": "#/components/schemas/Person"
+          },
+          "mandate": {
+            "$ref": "#/components/schemas/MandateToAdd"
+          },
+          "authorizations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Authorization"
+            }
+          },
+          "document": {
+            "$ref": "#/components/schemas/Document"
+          }
+        },
+        "description": "Delegate is optional (in case company gets deleted then updating is needed)."
+      },
+      "MandateToAdd": {
+        "required": [
+          "role"
+        ],
+        "type": "object",
+        "properties": {
+          "role": {
+            "maxLength": 4000,
+            "pattern": "^\\S+\\:\\S+$",
+            "type": "string",
+            "description": "Role code",
+            "format": "string",
+            "example": "GLOBAL1_EMTA:ACCOUNTANT"
+          },
+          "canSubDelegate": {
+            "type": "boolean",
+            "description": "Can this role be given out with the right to sub-delegate it."
+          },
+          "validityPeriod": {
+            "$ref": "#/components/schemas/ValidityPeriod"
+          }
+        }
+      },
+      "Authorization": {
+        "type": "object",
+        "properties": {
+          "userIdentifier": {
+            "type": "string",
+            "example": "EE39912310123"
+          },
+          "hasRole": {
+            "type": "string",
+            "description": "List of roles the user had",
+            "example": "BR_REPRIGHT:SOLEREP"
+          }
+        },
+        "description": "On what grounds did Pääsuke allow the user to perform this addition"
+      },
+      "Document": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "description": "Unique identifier that points to the signed document",
+            "example": "5b72e01c-fa7f-479c-b014-cc19efe5b732"
+          },
+          "singleDelegate": {
+            "type": "boolean",
+            "description": "True in case the signed document contains information about a single delegate and it is safe to reveal the document to the delegate. False means that the signed contaier contains information about multiple delegates and it is only safe to reveal it to the representee."
+          }
+        },
+        "description": "If the operation was digitally signed then a document was created. This provides information about the signed container."
+      },
+      "MandateToSubDelegate": {
+        "type": "object",
+        "properties": {
+          "subDelegate": {
+            "$ref": "#/components/schemas/Person"
+          },
+          "validityPeriod": {
+            "$ref": "#/components/schemas/ValidityPeriod"
+          },
+          "authorizations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Authorization"
+            }
+          },
+          "document": {
+            "$ref": "#/components/schemas/Document"
+          }
+        }
+      },
+      "DeleteMandate": {
+        "required": [
+          "action"
+        ],
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "example": "DELETE",
+            "enum": [
+              "DELETE"
+            ]
+          },
+          "authorizations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Authorization"
+            }
+          },
+          "document": {
+            "$ref": "#/components/schemas/Document"
+          }
+        },
+        "description": "End the validity of a mandate. When document is not null it means that it was digitally signed by the persons in the authorizations list."
+      },
+      "RoleDefinition": {
+        "required": [
+          "code",
+          "delegateType",
+          "representeeType",
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Namespace code + \":\" + role code. Role code can contain any UTF-8 character (even spaces and colons).",
+            "format": "string",
+            "example": "STAT_ESTAT:Respondent"
+          },
+          "title": {
+            "$ref": "#/components/schemas/Translation"
+          },
+          "addableBy": {
+            "type": "array",
+            "description": "In order to add a mandate with this role the user representing the representee must have a valid mandate with a role in this list. If the value is empty or null, this role cannot be assigned from Pääsuke. If the role is configured so that representeeType has the value NATURAL_PERSON in it then add \"NAT_REPRIGHT:SOLEREP\" to this list - this value indicates that a natural person (as a representee) is allowed to add a mandate with this role if the natural person adding the mandate has the right to represent oneself (kui volituse andja teovõime ei ole piiratud).",
+            "example": [
+              "BR_REPRIGHT:SOLEREP",
+              "EMTA:I"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "addableOnlyIfRepresenteeHasRoleIn": {
+            "type": "array",
+            "description": "Defining this list is used in rare cases where in order to assign the role, the <u>representee</u> also must have at least one mandate with a role in this list. For example to add some PRIA role the user representing the <u>representee</u> must have a role in the addableBy list and the representee must have the role \"PRIA:PRIA.customer\"",
+            "example": [
+              "PRIA:PRIA.customer"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "addingMustBeSigned": {
+            "type": "boolean",
+            "description": "If this is set as true then the user adding a mandate with this role needs to digitally sign it"
+          },
+          "canSubDelegate": {
+            "type": "boolean",
+            "description": "If this is set as true then a mandate with this role can be added with the right to further sub-delegate it."
+          },
+          "delegateType": {
+            "type": "array",
+            "description": "Type of persons this role can be assigned to. Setting delegateType only to LEGAL_PERSON is meant to be used for machine-to-machine roles. For example EMTA has a role \"Käibedeklaratsiooni (KMD) andmete saatmine masin-masin liidese vahendusel (kood XT_MM_KMD)\".",
+            "items": {
+              "type": "string",
+              "example": "NATURAL_PERSON",
+              "enum": [
+                "LEGAL_PERSON",
+                "NATURAL_PERSON"
+              ]
+            }
+          },
+          "delegateCanEqualToRepresentee": {
+            "type": "boolean",
+            "description": "If this is set to true then in the Pääsuke Admin Portal it is possible to create mandates with this role where the value of the representee equals the value of the delegate. This functionality is used for the eesti.ee RR partner services. These types of roles where representee=delegate can only be added and deleted from the Admin portal (so in eesti.ee they are displayed as read-only)."
+          },
+          "description": {
+            "$ref": "#/components/schemas/Translation"
+          },
+          "hidden": {
+            "type": "boolean",
+            "description": "Mandates with hidden roles are not shown in Pääsuke UI. A hidden role is a method to add extra information about the person. For example, we could create a role AA with property addableBy=BB, hidden=false. Now we can create hidden role BB and we can add a mandate with the role BB to persons who are allowed to add role AA. False by default. If hidden is set to true then all of the role properties (except 'code' and 'modified') are ignored."
+          },
+          "modified": {
+            "type": "string",
+            "description": "When this role definition was last modified. It is highly recommended to include this value in the response.",
+            "format": "date-time",
+            "example": "2022-10-18T13:00:00+02:00"
+          },
+          "representeeType": {
+            "type": "array",
+            "description": "Type of representees who can add a mandate with this role. GOVERNMENT_PERSON is a sub-type of LEGAL_PERSON whose Estonian registry code starts with 7. Since LEGAL_PERSON includes GOVERNMENT_PERSON it is never needed to list both types for the same role. Setting representeeType=null could be used for hidden roles.",
+            "example": [
+              "LEGAL_PERSON",
+              "NATURAL_PERSON"
+            ],
+            "items": {
+              "type": "string",
+              "enum": [
+                "LEGAL_PERSON",
+                "NATURAL_PERSON",
+                "GORVENRMENT_PERSON"
+              ]
+            }
+          },
+          "subDelegateType": {
+            "type": "array",
+            "description": "Type of persons this role can be sub-delegated to. Defaults to NATURAL_PERSON (if canSubDelegate is set as true).",
+            "items": {
+              "type": "string",
+              "example": "NATURAL_PERSON",
+              "enum": [
+                "LEGAL_PERSON",
+                "NATURAL_PERSON"
+              ]
+            }
+          },
+          "subDelegableBy": {
+            "type": "array",
+            "description": "In order to add a sub-delegate for a mandate with this role the user representing the delegate must have a valid mandate with a role in this list. Defaults to addableBy.",
+            "example": [
+              "BR_REPRIGHT:SOLEREP",
+              "EMTA:I"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "validityPeriodFromNotInFuture": {
+            "type": "boolean",
+            "description": "If true then Pääsuke UI restricts setting validityPeriod.from into the future when adding a new mandate. If adding a sub-delegate is allowed then this check is also applied when adding a sub-delegate."
+          },
+          "validityPeriodThroughMustBeUndefined": {
+            "type": "boolean",
+            "description": "If true then Pääsuke UI forces setting validityPeriod.through to infinity. If adding a sub-delegate is allowed then this check is also applied when adding a sub-delegate."
+          },
+          "waivableBy": {
+            "type": "array",
+            "description": "The user representing the delegate must have a valid mandate with a role in the list to waive this mandate from the delegate side (volitusest loobumine). If this is set to an empty list then this mandate cannot be waived. Defaults to addableBy.",
+            "example": [
+              "BR_REPRIGHT:SOLEREP",
+              "NAT_REPRIGHT:SOLEREP",
+              "EMTA:I"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "waivingMustBeSigned": {
+            "type": "boolean",
+            "description": "If this is set true then the delegate has to digitally sign when the delegate (volituse saaja) wants to waive the mandate (volitusest loobumine)."
+          },
+          "withdrawableBy": {
+            "type": "array",
+            "description": "The user representing the representee must have a mandate with a role in the list to withdraw this mandate from the representee side (volituse tagasivõtmine). If this is set to an empty list then this mandate cannot be withdrawn. Defaults to addableBy.",
+            "example": [
+              "BR_REPRIGHT:SOLEREP",
+              "EMTA:I"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "withdrawalMustBeSigned": {
+            "type": "boolean",
+            "description": "If this is set true then the representee (or the person representing the representee) has to digitally sign when he wants to withdraw the mandate (volituse tagasivõtmine)."
+          },
+          "assignableBy": {
+            "type": "array",
+            "description": "Deprecated. Use 'addableBy' instead.",
+            "example": [
+              "EMTA:I"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "assignableOnlyIfRepresenteeHasRoleIn": {
+            "type": "array",
+            "description": "Deprecated. Use 'addableOnlyIfRepresenteeHasRoleIn' instead.",
+            "example": [
+              "Eesti.ee.RR.partner:isik_aadressid"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "deletableBy": {
+            "type": "array",
+            "description": "Deprecated. Use 'withdrawableBy' instead.",
+            "example": [
+              "BR_REPRIGHT:SOLEREP",
+              "EMTA:I"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "deletableByDelegate": {
+            "type": "boolean",
+            "description": "Deprecated. Use 'waivingAllowed' instead."
+          },
+          "visible": {
+            "type": "boolean",
+            "description": "Deprecated. Use 'hidden' instead."
+          }
+        }
+      }
+    },
+    "responses": {
+      "MandateTriplets": {
+        "description": "MandateTriplets that match query parameters. If there are no mandates to return for this representee or delegate then empty list should be returned. MandateTriplet consists of 3 parts&colon;\n<ol>\n  <li>representee (volitaja)</li>\n  <li>delegate (volitatu)</li>\n  <li>list of mandates that are currently valid or become valid in the future.</li></ol>\nProperties of a mandate:\n<ul>\n  <li><b>role</b></li>\n  <li><b>validityPeriod</b> - if this value is present it must have either validFrom, validThrough or both. If the valid through date is in the past the mandate must not be returned at all. The value of validThrough must be to the last date the mandate is valid (like 31.12.2029). If the mandate is valid indefinitely then validThrough must be omitted.</li>\n  <li><b>canSubDlegate</b> - it is true if the person has given this mandate with the right to further sub-delegate it. Otherwise the value is false or not returned at all.</li>\n  <li><b>subDelegatorIdentifier</b> - precence of this value indicates that this mandate has been created by adding a sub-delegate to some other mandate. The value of this property indicates who was the delegate of the original mandate.</li>\n  </ul>\n",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/MandateTriplet"
+              }
+            },
+            "example": [
+              {
+                "representee": {
+                  "type": "LEGAL_PERSON",
+                  "legalName": "Väikefirma OÜ",
+                  "identifier": "EE12345678"
+                },
+                "delegate": {
+                  "type": "NATURAL_PERSON",
+                  "firstName": "Jüri",
+                  "surname": "Juurikas",
+                  "identifier": "EE38302250123"
+                },
+                "mandates": [
+                  {
+                    "role": "EMTA:HAMPI",
+                    "validityPeriod": {
+                      "from": "2017-07-21",
+                      "through": "2028-12-31"
+                    },
+                    "subDelegatorIdentifier": "EE12345678",
+                    "links": {
+                      "delete": "/v1/nss/EMTA/representees/int-EE12345678/delegates/int-EE38302250123/mandates/int-mandate-123",
+                      "addSubDelegate": "/v1/nss/EMTA/representees/int-EE12345678/delegates/int-EE38302250123/mandates/int-mandate-123/subdelegates",
+                      "origin": "https://vaarikas.emta.ee/view/int-mandate-123"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "RoleDefinitions": {
+        "description": "<p>Return all roles that might be used by other queries.</p>\n<p><b>modified</b> - when this role definition was last modified. It is highly recommended to include this value in the response.</p>\n<p><b>canSubDelegate</b> - can this role be given out with the right to sub-delegate it further</p>\n<p><b>representeeType</b> - one of [NATURAL_PERSON, LEGAL_PERSON, GOVERNMENT_PERSON] - who can be representee for this role. If representeeType is missing from the role definition then it cannot be assigned from Pääsuke.</p>\n<p><b>delegateType</b> -  one of [LEGAL_PERSON, NATURAL_PERSON ]. Type of persons this role can be assigned to. If delegateType is missing from the role definition then it cannot be assigned from Pääsuke.</p>\n<p><b>assignableBy</b> - list of roles that are allowed to assign this role. The person who wants to add this role needs to have at least one of listed oles. If the value is empty then this role cannot be assigned from Pääsuke.<br/>\nNote&colon; Assigning a role through MISP2 portal. Pääsuke allows adding roles through MISP2 portal (this is a different portal than eesti.ee). If a role must be assignable from there then assignableBy must include \"MISP2&colon;MISP2_USER\".</p>\n<p><b>validityPeriodFromNotInFuture</b> - If true then Pääsuke UI restricts setting validityPeriod.from into the future when adding a new mandate. If adding a sub-delegate is allowed then this check is also applied when adding a sub-delegate.</p>\n<p><b>validityPeriodThroughMustBeUndefined</b> - If true then Pääsuke UI forces setting validityPeriod.through to infinity. If adding a sub-delegate is allowed then this check is also applied when adding a sub-delegate.</p>\n<p><b>withdrawableBy</b> - list of role codes that are allowed to delete this mandate. If this is missing then assignableBy roles are used instead.</p>\n<p><b>visible</b> - by default all mandates are visible but there are cases when role can be added if user has some property that is not a mandate. Then invisible roles can be used to carry this property.</p>\n<p><b>assignableOnlyIfRepresenteeHasRoleIn</b> - If this configuration parameter has a value then the check is done in addition to the assignableBy check (delegate must have a role in the assignableBy list). <br/>Defining this list is used in rare cases (like eesti.ee RR partner services) where in order to assign the role, the <u>representee</u> also must have at least one role in this list.</p>\n<p><b>delegateCanEqualToRepresentee  </b> - If this is set to true then in the admin portal (MISP2) it is possible to create mandates with this role where the value of representee equals to the value of delegate. This functionality is used for the eesti.ee RR partner services. These types of roles where representee=delegate can only be deleted from the MISP2 admin portal (so in eesti.ee they are displayed as read-only).</p>\n",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/RoleDefinition"
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "X-Road-UserId": {
+        "name": "X-Road-UserId",
+        "in": "header",
+        "description": "User identifier whose action initiated the request. This also can be an employee of RIA using some back-end.",
+        "required": false,
+        "schema": {
+          "type": "string"
+        },
+        "example": "EE39912310123"
+      },
+      "X-Road-Represented-Party": {
+        "name": "X-Road-Represented-Party",
+        "in": "header",
+        "description": "When service client represents third party while issuing a query then it must be filled with identifier of that third party. When service client represents itself then this header is omitted.",
+        "required": false,
+        "schema": {
+          "type": "string"
+        },
+        "example": "EE12345678"
+      },
+      "X-Road-Id": {
+        "name": "X-Road-Id",
+        "in": "header",
+        "description": "Unique identifier (UUID) for this message.",
+        "schema": {
+          "type": "string"
+        },
+        "example": "123e4567-e89b-12d3-a456-42661417400"
+      }
+    },
+    "requestBodies": {
+      "AddMandateTriplet": {
+        "description": "Details of the mandate being added.<p><b>Identifier of the representee (volituse andja) and delegate (volitaja)</b> can be one of the follwing&colon;</p><p>a)  'EE' followed by 8-digit legal entity code from Estonian Business Registry (however in reality it is very rarely that the sub-delegate is a company, it is usually a natural person)</p> <p>b) 'EE' followed by 11-digit national identity number</p> <p>c) Two-letter country code followed by eIDAS identification (1...254 symbols) - Pääsuke uses the value that was returned by Tara when the person logged into eesti.ee portal.</p><p>The <b>validityPeriod</b> can be from today and infinite (no through date) or with specific end date.</p><p>The <b>authorizations</b> block informs why Pääsuke came to a conclusin that this user has the authorization to add this mandate. The userIdentifier always points to the acutal natural person who confirmed the action in the user interface.</p>",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/AddMandateTriplet"
+            },
+            "example": {
+              "representee": {
+                "type": "LEGAL_PERSON",
+                "legalName": "Väikefirma OÜ",
+                "identifier": "EE12345678"
+              },
+              "delegate": {
+                "type": "NATURAL_PERSON",
+                "firstName": "Jüri",
+                "surname": "Juurikas",
+                "identifier": "EE38302250123"
+              },
+              "mandate": {
+                "role": "GLOBAL1_EMTA:ACCOUNTANT",
+                "canSubDelegate": true,
+                "validityPeriod": {
+                  "from": "2028-01-01",
+                  "through": "2030-12-31"
+                }
+              },
+              "authorizations": [
+                {
+                  "userIdentifier": "EE49028099999",
+                  "hasRole": "BR_REPRIGHT:SOLEREP"
+                }
+              ],
+              "document": {
+                "uuid": "5b72e01c-fa7f-479c-b014-cc19efe5b732",
+                "singleDelegate": true
+              }
+            }
+          }
+        }
+      },
+      "MandateToSubDelegate": {
+        "description": "Details of the person whom the mandate is being sub-delegated, also the validity period and the details why Pääsuke allowed this operation to take place. <p><b>Identifier of the subDelegate (edasivolitatu)</b> can be one of the follwing&colon;</p> <p>a) 'EE' followed by 11-digit national identity number</p> <p>b) Two-letter country code followed by eIDAS identification (1...254 symbols) - Pääsuke uses the value that was returned by Tara when the person logged into eesti.ee portal.</p><p>The sub-delegate cannot be a legal person.</p><p>The <b>validityPeriod</b> can only be within the original validity period and validity period.</p><p>The <b>authorizations</b> block informs why Pääsuke came to a conclusin that this user has the authorization to sub-delegate this mandate. The userIdentifier always points to the acutal natural person who confirmed the action from the user interface.</p><p><b>document</b> - This section is present if the persons listed in authorizations block added their digital signature.</p><p><b>document.uuid</b> Document UUID. This identifier can be used to download the signed container from Pääsuke over x-road.</p><p><b>document.singleDelegate</b> is set to true in case the signed document contains information about a single delegate and it is safe to reveal the document to the delegate. False means that the signed container contains information about multiple delegates and it is only safe to reveal it to the representee and not to any of the delegates.</p>",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/MandateToSubDelegate"
+            },
+            "example": {
+              "subDelegate": {
+                "type": "NATURAL_PERSON",
+                "firstName": "Jüri",
+                "surname": "Juurikas",
+                "identifier": "EE38302250123"
+              },
+              "validityPeriod": {
+                "from": "2028-01-01",
+                "through": "2030-12-31"
+              },
+              "authorizations": [
+                {
+                  "userIdentifier": "EE39912310123",
+                  "hasRole": "BR_REPRIGHT:SOLEREP"
+                }
+              ],
+              "document": {
+                "uuid": "5b72e01c-fa7f-479c-b014-cc19efe5b732",
+                "singleDelegate": true
+              }
+            }
+          }
+        }
+      },
+      "DeleteMandate": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/DeleteMandate"
+            }
+          }
+        }
+      }
+    }
+  }
+}
