@@ -244,15 +244,6 @@ def extract_mandate_subdelegate_data(payload):
     return data
 
 
-def extract_identifier_codes_data(payload):
-    personal_company_code_country = payload[:2]
-    personal_company_code = payload[2:]
-    return {
-        'personal_company_code_country': personal_company_code_country,
-        'personal_company_code': personal_company_code
-    }
-
-
 def create_mandate_pg(uri, data):
     conn = psycopg2.connect(uri)
     conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
