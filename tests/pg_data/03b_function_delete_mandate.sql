@@ -1,11 +1,11 @@
 CREATE OR REPLACE FUNCTION paasuke_delete_mandate(
-    p_representee_id TEXT,
-    p_delegate_id TEXT,
+    p_representee_id INT,
+    p_delegate_id INT,
     p_mandate_id TEXT
 ) RETURNS BOOLEAN AS $$
 BEGIN
-    IF NOT (p_representee_id ~ '^\d+$' AND p_delegate_id ~ '^\d+$' AND p_mandate_id ~ '^\d+$') THEN
-        RAISE EXCEPTION 'p_representee_id, p_delegate_id and p_mandate_id must be integers';
+    IF NOT (p_mandate_id ~ '^\d+$') THEN
+        RAISE EXCEPTION 'p_mandate_id must be integer';
 END IF;
 
 

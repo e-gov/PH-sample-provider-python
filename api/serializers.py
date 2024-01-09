@@ -97,3 +97,33 @@ def serialize_mandate(representee, delegate, mandate, settings):
     }
     return mandate_data
 
+
+def serialize_deleted_subdelegated_mandates(subdelegated_deleted_mandates, deleted_mandates, settings):
+    data_rows = [deleted for deleted in deleted_mandates if deleted['id'] in [sub['id'] for sub in subdelegated_deleted_mandates]]
+    deleted_sub_delegated_mandates = []
+    for item in data_rows:
+        validity_period = {
+            'from': item['validity_period_from'].strftime('%Y-%m-%d'),
+            'through': item['validity_period_through'].strftime('%Y-%m-%d')
+        }
+        validity_period = {k: v for k, v in validity_period.items() if v is not None}
+
+        sub_delegate = {
+            'type': item['delegate_type'],
+            'firstName': item['delegate_first_name'],
+            'surname': item['delegate_surname'],
+            'legalName': item['delegate_legal_name'],
+            'identifier': item['delegate_identifier']
+        }
+        sub_delegate = {k: v for k, v in sub_delegate.items() if v is not None}
+
+        mandate = {'subDelegate': sub_delegate}
+        if validity_period:
+            mandate['validityPeriod'] = validity_period
+        deleted_sub_delegated_mandates.append(mandate)
+
+    response_data = {
+        "deletedSubDelegatedMandates": deleted_sub_delegated_mandates
+    }
+    return response_data
+

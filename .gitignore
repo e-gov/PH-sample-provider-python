@@ -2,3 +2,4 @@
 venv
 tests/postgres-volume
 config/dev.cfg
+*.pyc

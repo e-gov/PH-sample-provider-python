@@ -5,17 +5,19 @@ from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_swagger_ui import get_swaggerui_blueprint
 
+from api.enums import is_valid_action
 from api.exceptions import (CompanyCodeInvalid,
                             ErrorConfigBase, MandateDataInvalid,
                             MandateNotFound, MandateSubdelegateDataInvalid,
-                            UnprocessableRequestError, ActionInvalid)
+                            UnprocessableRequestError, ActionInvalid, PersonNotFound)
 from api.serializers import (serialize_delegate_mandates,
-                             serialize_representee_mandates)
+                             serialize_representee_mandates, serialize_deleted_subdelegated_mandates)
 from api.services import (create_mandate_pg, delete_mandate_pg,
                           extract_delegates_mandates, extract_mandate_data,
                           extract_mandate_subdelegate_data,
                           extract_representee_mandates, get_mandates,
-                          get_roles_pg, subdelegate_mandate_pg)
+                          get_roles_pg, subdelegate_mandate_pg, delete_subdelegated_mandates_pg, get_person_pg,
+                          extract_identifier_codes_data, get_deleted_mandates)
 from api.validators import (validate_add_mandate_payload,
                             validate_add_mandate_subdelegate_payload,
                             validate_person_company_code)
@@ -57,6 +59,7 @@ def create_app():
     app.errorhandler(MandateDataInvalid)(create_error_handler(400))
     app.errorhandler(MandateSubdelegateDataInvalid)(create_error_handler(400))
     app.errorhandler(MandateNotFound)(create_error_handler(404))
+    app.errorhandler(PersonNotFound)(create_error_handler(404))
     app.errorhandler(UnprocessableRequestError)(create_error_handler(422))
 
     def make_success_response(response_data, status_code):
@@ -148,27 +151,67 @@ def create_app():
         return make_success_response([], 201)
 
     @app.route(
-        '/v1/representees/<string:representee_id>/delegates/<string:delegate_id>/mandates/<string:mandate_id>',
+        '/v1/representees/<string:representee_identifier>/delegates/<string:delegate_identifier>/mandates/<string:mandate_id>',
         methods=['PUT']
     )
-    def delete_mandate(representee_id, delegate_id, mandate_id):
+    def delete_mandate(representee_identifier, delegate_identifier, mandate_id):
         xroad_user_id = request.headers.get('X-Road-UserId')
         app.logger.info(f'X-Road-UserId: {xroad_user_id} Deleting mandate')
+
+        error_config = app.config['SETTINGS']['errors']['legal_person_format_validation_failed']
+        [
+            validate_person_company_code(code, error_config)
+            for code in [representee_identifier, delegate_identifier]
+        ]
+
         data = request.json
-        if data['action'] != 'DELETE':
+        if data.get('action') is None or not is_valid_action(data['action']):
             error_config = app.config['SETTINGS']['errors']['action_invalid']
             raise ActionInvalid("Action invalid", error_config)
 
         db_uri = app.config['SQLALCHEMY_DATABASE_URI']
         try:
-            deleted = delete_mandate_pg(db_uri, representee_id, delegate_id, mandate_id)
+            data_rows_deleted_subdelegated_mandates = delete_subdelegated_mandates_pg(db_uri, mandate_id)
+
+            representee_codes = extract_identifier_codes_data(representee_identifier)
+            data_row_representee = get_person_pg(
+                db,
+                representee_codes['personal_company_code_country'],
+                representee_codes['personal_company_code']
+            )
+            if not data_row_representee:
+                error_config = app.config['SETTINGS']['errors']['person_not_found']
+                raise PersonNotFound('Representee was not found', error_config)
+
+            delegate_codes = extract_identifier_codes_data(delegate_identifier)
+            data_row_delegate = get_person_pg(
+                db,
+                delegate_codes['personal_company_code_country'],
+                delegate_codes['personal_company_code']
+            )
+            if not data_row_delegate:
+                error_config = app.config['SETTINGS']['errors']['person_not_found']
+                raise PersonNotFound('Delegate was not found', error_config)
+
+            data_row_deleted_mandate = delete_mandate_pg(
+                db_uri,
+                data_row_representee['id'],
+                data_row_delegate['id'],
+                mandate_id
+            )
         except psycopg2.errors.RaiseException as e:
             app.logger.exception(str(e))
             error_config = app.config['SETTINGS']['errors']['unprocessable_request']
             raise UnprocessableRequestError('Unprocessable request while deleting mandate. Something went wrong.',
                                             error_config)
-        if deleted:
-            return make_success_response([], 200)
+        if data_row_deleted_mandate:
+            data_rows_deleted_mandates = get_deleted_mandates(db)
+            response_data = serialize_deleted_subdelegated_mandates(
+                data_rows_deleted_subdelegated_mandates,
+                data_rows_deleted_mandates,
+                app.config['SETTINGS']
+            )
+            return make_success_response(response_data, 200)
         error_config = app.config['SETTINGS']['errors']['mandate_not_found']
         raise MandateNotFound('Mandate to delete was not found', error_config)
 

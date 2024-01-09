@@ -39,6 +39,14 @@ errors:
         et: Mandate not found
         ru: Mandate not found (ru)
       type: test-type-for-mandate-not-found
+    person_not_found:
+      reference: http://example-mandate-not-found-guidence.com
+      title: Person not found
+      translation:
+        en: Person not found (et)
+        et: Person not found
+        ru: Person not found (ru)
+      type: test-type-for-person-not-found
     internal_server_error:
       reference: http://example-internal-server-error-guidence.com
       title: Internal server error

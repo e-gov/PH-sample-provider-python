@@ -34,19 +34,26 @@ with this data.
 ## Configuration
 
 ## How to run API app in development environment
-
+### Unix based
     `python3 -m venv venv`
     `source venv/bin/activate`
     `pip install -r requirements.txt`
     `export PYTHONPATH=$PWD`
+### Windows
+    `python -m venv venv`
+    `venv\Scripts\activate`
+    `pip install -r requirements.txt`
+    `set PYTHONPATH=%cd%`
 
-Check configuration example in example.cfg.
-
+## Check configuration example in example.cfg.
+### Unix based
     `cp config/example.cfg config/dev.cfg`
-
     `export APP_SETTINGS=../config/dev.cfg`
-
     `python3 api/app.py`
+### Windows
+    `copy config\example.cfg config\dev.cfg`
+    `set APP_SETTINGS=..\config\dev.cfg`
+    `python api\app.py`
 
 ## How to run API app with docker-compose
     `docker-compose up -d`

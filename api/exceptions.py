@@ -59,6 +59,15 @@ class MandateNotFound(ErrorConfigBase):
         self.status_code = status_code or MandateNotFound.status_code
 
 
+class PersonNotFound(ErrorConfigBase):
+    status_code = 404
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        status_code = kwargs.get('status_code')
+        self.status_code = status_code or PersonNotFound.status_code
+
+
 class UnprocessableRequestError(ErrorConfigBase):
     status_code = 422
 

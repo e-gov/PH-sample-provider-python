@@ -30,6 +30,33 @@ def get_mandates(db, representee_identifier=None, delegate_identifier=None, subd
     return [dict(row._mapping) for row in rows]
 
 
+def get_deleted_mandates(db, representee_identifier=None, delegate_identifier=None, subdelegated_by_identifier=None):
+    params = {
+        'date_now': datetime.today()
+    }
+    where_conditions = [
+        ""
+    ]
+    if representee_identifier:
+        where_conditions.append("representee_identifier=:representee_id")
+        params['representee_id'] = representee_identifier
+
+    if delegate_identifier:
+        where_conditions.append('delegate_identifier=:delegate_identifier')
+        params['delegate_identifier'] = delegate_identifier
+
+    if subdelegated_by_identifier:
+        where_conditions.append('subdelegated_by_identifier=:subdelegated_by_identifier')
+        params['subdelegated_by_identifier'] = subdelegated_by_identifier
+
+    sql = "SELECT * FROM paasuke_deleted_mandates_view"
+    if where_conditions != [""]:
+        sql = f"SELECT * FROM paasuke_deleted_mandates_view WHERE {' AND '.join(where_conditions)}"
+    result = db.session.execute(text(sql), params)
+    rows = result.fetchall()
+    return [dict(row._mapping) for row in rows]
+
+
 def extract_representee_mandates(data):
     grouped = defaultdict(lambda: {
         'representee_type': None,
@@ -217,6 +244,15 @@ def extract_mandate_subdelegate_data(payload):
     return data
 
 
+def extract_identifier_codes_data(payload):
+    personal_company_code_country = payload[:2]
+    personal_company_code = payload[2:]
+    return {
+        'personal_company_code_country': personal_company_code_country,
+        'personal_company_code': personal_company_code
+    }
+
+
 def create_mandate_pg(uri, data):
     conn = psycopg2.connect(uri)
     conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
@@ -265,6 +301,26 @@ def delete_mandate_pg(uri, representee_id, delegate_id, mandate_id):
     return result
 
 
+def delete_subdelegated_mandates_pg(uri, mandate_id):
+    conn = psycopg2.connect(uri)
+    conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+
+    cur = conn.cursor()
+    cur.callproc(
+        'paasuke_delete_subdelegated_mandates', [mandate_id]
+    )
+
+    col_names = [desc[0] for desc in cur.description]
+    result = [
+        {col_names[i]: value for i, value in enumerate(row)}
+        for row in cur.fetchall()
+    ]
+
+    cur.close()
+    conn.close()
+    return result
+
+
 def subdelegate_mandate_pg(uri, data):
     conn = psycopg2.connect(uri)
     conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
@@ -300,3 +356,17 @@ def get_roles_pg(db):
     result = db.session.execute(text(sql))
     rows = result.fetchall()
     return [dict(row._mapping) for row in rows]
+
+
+def get_person_pg(db, personal_company_code_country, personal_company_code):
+    sql = "SELECT * FROM person WHERE personal_company_code = :code AND personal_company_code_country = :country"
+    result = db.session.execute(text(sql), {'code': personal_company_code, 'country': personal_company_code_country})
+
+    row = result.fetchone()
+    if row is None:
+        return None
+
+    column_names = result.keys()
+    row = {col: value for col, value in zip(column_names, row)}
+
+    return row
