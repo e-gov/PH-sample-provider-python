@@ -246,7 +246,9 @@ curl --location --request PUT 'http://127.0.0.1:8082/v1/representees/100001/dele
 ## List of requests with details that do not relate to Swagger specs yet:
 1. `GET /v1/delegates/<str:delegate>/representees/mandates`
    1. Request parameter `subDelegatedBy` is not used
-2. `GET /roles`
+2. `GET /v1/representees/<str:representee>/delegates/mandates`
+   1. Request parameter `subDelegatedBy` is not used
+3. `GET /roles`
    1. Response RoleDefinition contains `canSubDelegate` property
    2. Response RoleDefinition contains `modified` property
    3. Response RoleDefinition does not contain `representeeIdentifierIn` property
