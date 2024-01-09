@@ -45,7 +45,7 @@ def create_app():
     app.config['SETTINGS'] = parse_settings(app.config['SETTINGS_PATH'])
 
     SWAGGER_URL = "/v1/api-docs"
-    API_URL = "/static/aasaru-x-road-services-consumed-by-paasuke-0.9.3-resolved.json"
+    API_URL = "/static/x-road-services-consumed-by-paasuke.json"
     SWAGGER_BLUEPRINT = get_swaggerui_blueprint(
         SWAGGER_URL,
         API_URL,
