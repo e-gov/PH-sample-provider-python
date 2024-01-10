@@ -83,9 +83,9 @@ def serialize_mandate(representee, delegate, mandate, settings):
 
     validity_period = {}
     if mandate['validity_period_from']:
-        validity_period['from'] = mandate['validity_period_from'].strftime('%Y-%m-%d')
+        validity_period['from'] = mandate['validity_period_from'].strftime('%Y-%m-%d') if mandate['validity_period_from'] is not None else None,
     if mandate['validity_period_through']:
-        validity_period['through'] = mandate['validity_period_through'].strftime('%Y-%m-%d')
+        validity_period['through'] = mandate['validity_period_through'].strftime('%Y-%m-%d') if mandate['validity_period_through'] is not None else None
 
     mandate_data = {
         'links': links,
@@ -103,8 +103,8 @@ def serialize_deleted_subdelegated_mandates(subdelegated_deleted_mandates, delet
     deleted_sub_delegated_mandates = []
     for item in data_rows:
         validity_period = {
-            'from': item['validity_period_from'].strftime('%Y-%m-%d'),
-            'through': item['validity_period_through'].strftime('%Y-%m-%d')
+            'from': item['validity_period_from'].strftime('%Y-%m-%d') if item['validity_period_from'] is not None else None,
+            'through': item['validity_period_through'].strftime('%Y-%m-%d') if item['validity_period_through'] is not None else None
         }
         validity_period = {k: v for k, v in validity_period.items() if v is not None}
 

@@ -5,6 +5,9 @@ import yaml
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_swagger_ui import get_swaggerui_blueprint
+from sqlalchemy import create_engine
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import sessionmaker
 
 from api.enums import is_valid_action
 from api.exceptions import (CompanyCodeInvalid,
@@ -164,27 +167,36 @@ def create_app():
             raise ActionInvalid("Action invalid", error_config)
 
         db_uri = app.config['SQLALCHEMY_DATABASE_URI']
+        engine = create_engine(db_uri)
+        Session = sessionmaker(bind=engine)
+        session = Session()
         try:
-            data_rows_deleted_subdelegated_mandates = delete_subdelegated_mandates_pg(db_uri, mandate_id)
-            data_row_deleted_mandate = delete_mandate_pg(
-                db_uri,
-                representee_id,
-                delegate_id,
-                mandate_id
-            )
-        except psycopg2.errors.RaiseException as e:
-            app.logger.exception(str(e))
+            with session.begin():
+                conn = session.connection().connection
+                data_rows_deleted_subdelegated_mandates = delete_subdelegated_mandates_pg(conn, mandate_id)
+                data_row_deleted_mandate = delete_mandate_pg(
+                    conn,
+                    representee_id,
+                    delegate_id,
+                    mandate_id
+                )
+
+                if data_row_deleted_mandate:
+                    data_rows_mandates = get_mandates(db) # because the changes related to mandates are not persisted yet (running in session, we have to search from active mandates)
+                    response_data = serialize_deleted_subdelegated_mandates(
+                        data_rows_deleted_subdelegated_mandates,
+                        data_rows_mandates,
+                        app.config['SETTINGS']
+                    )
+                    return make_success_response(response_data, 200)
+        except Exception as custom_exception:
+            session.rollback()
+            app.logger.exception(str(custom_exception))
             error_config = app.config['SETTINGS']['errors']['unprocessable_request']
-            raise UnprocessableRequestError('Unprocessable request while deleting mandate. Something went wrong.',
-                                            error_config)
-        if data_row_deleted_mandate:
-            data_rows_deleted_mandates = get_deleted_mandates(db)
-            response_data = serialize_deleted_subdelegated_mandates(
-                data_rows_deleted_subdelegated_mandates,
-                data_rows_deleted_mandates,
-                app.config['SETTINGS']
-            )
-            return make_success_response(response_data, 200)
+            raise UnprocessableRequestError(str(custom_exception), error_config)
+        finally:
+            session.close()
+
         error_config = app.config['SETTINGS']['errors']['mandate_not_found']
         raise MandateNotFound('Mandate to delete was not found', error_config)
 

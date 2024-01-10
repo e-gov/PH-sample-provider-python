@@ -1,5 +1,6 @@
 CREATE OR REPLACE VIEW paasuke_mandates_view AS
 SELECT
+    mandate.id,
     mandate.role,
     mandate.validity_period_from::DATE,
     mandate.validity_period_through::DATE,

@@ -270,14 +270,12 @@ def create_mandate_pg(uri, data):
             data['data_can_display_document_to_delegate']
         ]
     )
+
     cur.close()
     conn.close()
 
 
-def delete_mandate_pg(uri, representee_id, delegate_id, mandate_id):
-    conn = psycopg2.connect(uri)
-    conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
-
+def delete_mandate_pg(conn, representee_id, delegate_id, mandate_id):
     cur = conn.cursor()
     cur.callproc(
         'paasuke_delete_mandate', [
@@ -287,15 +285,12 @@ def delete_mandate_pg(uri, representee_id, delegate_id, mandate_id):
         ]
     )
     result = cur.fetchone()[0]
+
     cur.close()
-    conn.close()
     return result
 
 
-def delete_subdelegated_mandates_pg(uri, mandate_id):
-    conn = psycopg2.connect(uri)
-    conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
-
+def delete_subdelegated_mandates_pg(conn, mandate_id):
     cur = conn.cursor()
     cur.callproc(
         'paasuke_delete_subdelegated_mandates', [mandate_id]
@@ -308,7 +303,6 @@ def delete_subdelegated_mandates_pg(uri, mandate_id):
     ]
 
     cur.close()
-    conn.close()
     return result
 
 
