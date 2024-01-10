@@ -2,17 +2,8 @@ def serialize_delegate_mandates(delegate, representees, settings):
     data = []
     for representee in representees:
         item = {
-            'representee': {
-                'identifier': representee['representee_identifier'],
-                'legalName': representee['representee_legal_name'],
-                'type': representee['representee_type']
-            },
-            'delegate': {
-                'firstName': delegate['delegate_first_name'],
-                'identifier': delegate['delegate_identifier'],
-                'surname': delegate['delegate_surname'],
-                'type': delegate['delegate_type']
-            },
+            'representee': serialize_item_by_type(representee, 'representee'),
+            'delegate': serialize_item_by_type(delegate, 'delegate'),
             'mandates': []
         }
         for mandate in representee['mandates']:
@@ -83,7 +74,7 @@ def serialize_mandate(representee, delegate, mandate, settings):
 
     validity_period = {}
     if mandate['validity_period_from']:
-        validity_period['from'] = mandate['validity_period_from'].strftime('%Y-%m-%d') if mandate['validity_period_from'] is not None else None,
+        validity_period['from'] = mandate['validity_period_from'].strftime('%Y-%m-%d') if mandate['validity_period_from'] is not None else None
     if mandate['validity_period_through']:
         validity_period['through'] = mandate['validity_period_through'].strftime('%Y-%m-%d') if mandate['validity_period_through'] is not None else None
 
