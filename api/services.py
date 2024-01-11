@@ -10,7 +10,7 @@ def get_mandates(db, representee_identifier=None, delegate_identifier=None, subd
         'date_now': datetime.today()
     }
     where_conditions = [
-        "(validity_period_through is NULL OR validity_period_through >= :date_now)"
+        "(validity_period_through is NULL OR validity_period_through >= DATE_TRUNC('Day', :date_now))"
     ]
     if representee_identifier:
         where_conditions.append("representee_identifier=:representee_id")
