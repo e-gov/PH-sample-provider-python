@@ -10,7 +10,7 @@ def get_mandates(db, representee_identifier=None, delegate_identifier=None, subd
         'date_now': datetime.today()
     }
     where_conditions = [
-        "(validity_period_through is NULL OR validity_period_through >= :date_now)"
+        "(validity_period_through is NULL OR validity_period_through >= DATE_TRUNC('Day', :date_now))"
     ]
     if representee_identifier:
         where_conditions.append("representee_identifier=:representee_id")
@@ -25,6 +25,33 @@ def get_mandates(db, representee_identifier=None, delegate_identifier=None, subd
         params['subdelegated_by_identifier'] = subdelegated_by_identifier
 
     sql = f"SELECT * FROM paasuke_mandates_view WHERE {' AND '.join(where_conditions)}"
+    result = db.session.execute(text(sql), params)
+    rows = result.fetchall()
+    return [dict(row._mapping) for row in rows]
+
+
+def get_deleted_mandates(db, representee_identifier=None, delegate_identifier=None, subdelegated_by_identifier=None):
+    params = {
+        'date_now': datetime.today()
+    }
+    where_conditions = [
+        ""
+    ]
+    if representee_identifier:
+        where_conditions.append("representee_identifier=:representee_id")
+        params['representee_id'] = representee_identifier
+
+    if delegate_identifier:
+        where_conditions.append('delegate_identifier=:delegate_identifier')
+        params['delegate_identifier'] = delegate_identifier
+
+    if subdelegated_by_identifier:
+        where_conditions.append('subdelegated_by_identifier=:subdelegated_by_identifier')
+        params['subdelegated_by_identifier'] = subdelegated_by_identifier
+
+    sql = "SELECT * FROM paasuke_deleted_mandates_view"
+    if where_conditions != [""]:
+        sql = f"SELECT * FROM paasuke_deleted_mandates_view WHERE {' AND '.join(where_conditions)}"
     result = db.session.execute(text(sql), params)
     rows = result.fetchall()
     return [dict(row._mapping) for row in rows]
@@ -243,14 +270,12 @@ def create_mandate_pg(uri, data):
             data['data_can_display_document_to_delegate']
         ]
     )
+
     cur.close()
     conn.close()
 
 
-def delete_mandate_pg(uri, representee_id, delegate_id, mandate_id):
-    conn = psycopg2.connect(uri)
-    conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
-
+def delete_mandate_pg(conn, representee_id, delegate_id, mandate_id):
     cur = conn.cursor()
     cur.callproc(
         'paasuke_delete_mandate', [
@@ -260,8 +285,24 @@ def delete_mandate_pg(uri, representee_id, delegate_id, mandate_id):
         ]
     )
     result = cur.fetchone()[0]
+
     cur.close()
-    conn.close()
+    return result
+
+
+def delete_subdelegated_mandates_pg(conn, mandate_id):
+    cur = conn.cursor()
+    cur.callproc(
+        'paasuke_delete_subdelegated_mandates', [mandate_id]
+    )
+
+    col_names = [desc[0] for desc in cur.description]
+    result = [
+        {col_names[i]: value for i, value in enumerate(row)}
+        for row in cur.fetchall()
+    ]
+
+    cur.close()
     return result
 
 
@@ -300,3 +341,17 @@ def get_roles_pg(db):
     result = db.session.execute(text(sql))
     rows = result.fetchall()
     return [dict(row._mapping) for row in rows]
+
+
+def get_person_pg(db, personal_company_code_country, personal_company_code):
+    sql = "SELECT * FROM person WHERE personal_company_code = :code AND personal_company_code_country = :country"
+    result = db.session.execute(text(sql), {'code': personal_company_code, 'country': personal_company_code_country})
+
+    row = result.fetchone()
+    if row is None:
+        return None
+
+    column_names = result.keys()
+    row = {col: value for col, value in zip(column_names, row)}
+
+    return row

@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW paasuke_mandates_view AS
+CREATE OR REPLACE VIEW paasuke_deleted_mandates_view AS
 SELECT
     mandate.id,
     mandate.role,
@@ -35,4 +35,4 @@ SELECT
 FROM mandate
 JOIN person AS delegate ON delegate.id = mandate.delegate_id
 JOIN person AS representee ON representee.id = mandate.representee_id
-WHERE mandate.deleted is NOT TRUE;
+WHERE mandate.deleted is TRUE;

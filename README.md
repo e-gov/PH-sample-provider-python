@@ -34,19 +34,26 @@ with this data.
 ## Configuration
 
 ## How to run API app in development environment
-
+### Unix based
     `python3 -m venv venv`
     `source venv/bin/activate`
     `pip install -r requirements.txt`
     `export PYTHONPATH=$PWD`
+### Windows
+    `python -m venv venv`
+    `venv\Scripts\activate`
+    `pip install -r requirements.txt`
+    `set PYTHONPATH=%cd%`
 
-Check configuration example in example.cfg.
-
+## Check configuration example in example.cfg.
+### Unix based
     `cp config/example.cfg config/dev.cfg`
-
     `export APP_SETTINGS=../config/dev.cfg`
-
     `python3 api/app.py`
+### Windows
+    `copy config\example.cfg config\dev.cfg`
+    `set APP_SETTINGS=..\config\dev.cfg`
+    `python api\app.py`
 
 ## How to run API app with docker-compose
     `docker-compose up -d`
@@ -236,13 +243,17 @@ curl --location --request PUT 'http://127.0.0.1:8082/v1/representees/100001/dele
 }'
 ```
 
-
-
-
-
-
-
-
-
-
+## List of requests with details that do not relate to Swagger specs yet:
+1. `GET /v1/delegates/<str:delegate>/representees/mandates`
+   1. Request parameter `subDelegatedBy` is not used
+2. `GET /v1/representees/<str:representee>/delegates/mandates`
+   1. Request parameter `subDelegatedBy` is not used
+3. `GET /roles`
+   1. Response RoleDefinition contains `canSubDelegate` property
+   2. Response RoleDefinition contains `modified` property
+   3. Response RoleDefinition does not contain `representeeIdentifierIn` property
+   4. Response RoleDefinition `representeeType` property contains `GORVENRMENT_PERSON` enum
+   5. Response RoleDefinition does not contain `subDelegable` property
+   6. Response RoleDefinition does not contain `subDelegatingMustBeSigned` property
+   7. Response RoleDefinition contains `assignableBy` property
 

@@ -1,21 +1,27 @@
 import os
+
 import psycopg2
 import yaml
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_swagger_ui import get_swaggerui_blueprint
+from sqlalchemy import create_engine
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import sessionmaker
 
+from api.enums import is_valid_action
 from api.exceptions import (CompanyCodeInvalid,
                             ErrorConfigBase, MandateDataInvalid,
                             MandateNotFound, MandateSubdelegateDataInvalid,
                             UnprocessableRequestError, ActionInvalid)
 from api.serializers import (serialize_delegate_mandates,
-                             serialize_representee_mandates)
+                             serialize_representee_mandates, serialize_deleted_subdelegated_mandates)
 from api.services import (create_mandate_pg, delete_mandate_pg,
                           extract_delegates_mandates, extract_mandate_data,
                           extract_mandate_subdelegate_data,
                           extract_representee_mandates, get_mandates,
-                          get_roles_pg, subdelegate_mandate_pg)
+                          get_roles_pg, subdelegate_mandate_pg, delete_subdelegated_mandates_pg, get_person_pg,
+                          get_deleted_mandates)
 from api.validators import (validate_add_mandate_payload,
                             validate_add_mandate_subdelegate_payload,
                             validate_person_company_code)
@@ -42,7 +48,7 @@ def create_app():
     app.config['SETTINGS'] = parse_settings(app.config['SETTINGS_PATH'])
 
     SWAGGER_URL = "/v1/api-docs"
-    API_URL = "/static/aasaru-x-road-services-consumed-by-paasuke-0.9.3-resolved.json"
+    API_URL = "/static/x-road-services-consumed-by-paasuke.json"
     SWAGGER_BLUEPRINT = get_swaggerui_blueprint(
         SWAGGER_URL,
         API_URL,
@@ -154,21 +160,43 @@ def create_app():
     def delete_mandate(representee_id, delegate_id, mandate_id):
         xroad_user_id = request.headers.get('X-Road-UserId')
         app.logger.info(f'X-Road-UserId: {xroad_user_id} Deleting mandate')
+
         data = request.json
-        if data['action'] != 'DELETE':
+        if data.get('action') is None or not is_valid_action(data['action']):
             error_config = app.config['SETTINGS']['errors']['action_invalid']
             raise ActionInvalid("Action invalid", error_config)
 
         db_uri = app.config['SQLALCHEMY_DATABASE_URI']
+        engine = create_engine(db_uri)
+        Session = sessionmaker(bind=engine)
+        session = Session()
         try:
-            deleted = delete_mandate_pg(db_uri, representee_id, delegate_id, mandate_id)
-        except psycopg2.errors.RaiseException as e:
-            app.logger.exception(str(e))
+            with session.begin():
+                conn = session.connection().connection
+                data_rows_deleted_subdelegated_mandates = delete_subdelegated_mandates_pg(conn, mandate_id)
+                data_row_deleted_mandate = delete_mandate_pg(
+                    conn,
+                    representee_id,
+                    delegate_id,
+                    mandate_id
+                )
+
+                if data_row_deleted_mandate:
+                    data_rows_mandates = get_mandates(db) # because the changes related to mandates are not persisted yet (running in session, we have to search from active mandates)
+                    response_data = serialize_deleted_subdelegated_mandates(
+                        data_rows_deleted_subdelegated_mandates,
+                        data_rows_mandates,
+                        app.config['SETTINGS']
+                    )
+                    return make_success_response(response_data, 200)
+        except Exception as custom_exception:
+            session.rollback()
+            app.logger.exception(str(custom_exception))
             error_config = app.config['SETTINGS']['errors']['unprocessable_request']
-            raise UnprocessableRequestError('Unprocessable request while deleting mandate. Something went wrong.',
-                                            error_config)
-        if deleted:
-            return make_success_response([], 200)
+            raise UnprocessableRequestError(str(custom_exception), error_config)
+        finally:
+            session.close()
+
         error_config = app.config['SETTINGS']['errors']['mandate_not_found']
         raise MandateNotFound('Mandate to delete was not found', error_config)
 

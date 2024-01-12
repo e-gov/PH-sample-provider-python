@@ -2,17 +2,8 @@ def serialize_delegate_mandates(delegate, representees, settings):
     data = []
     for representee in representees:
         item = {
-            'representee': {
-                'identifier': representee['representee_identifier'],
-                'legalName': representee['representee_legal_name'],
-                'type': representee['representee_type']
-            },
-            'delegate': {
-                'firstName': delegate['delegate_first_name'],
-                'identifier': delegate['delegate_identifier'],
-                'surname': delegate['delegate_surname'],
-                'type': delegate['delegate_type']
-            },
+            'representee': serialize_item_by_type(representee, 'representee'),
+            'delegate': serialize_item_by_type(delegate, 'delegate'),
             'mandates': []
         }
         for mandate in representee['mandates']:
@@ -83,9 +74,9 @@ def serialize_mandate(representee, delegate, mandate, settings):
 
     validity_period = {}
     if mandate['validity_period_from']:
-        validity_period['from'] = mandate['validity_period_from'].strftime('%Y-%m-%d')
+        validity_period['from'] = mandate['validity_period_from'].strftime('%Y-%m-%d') if mandate['validity_period_from'] is not None else None
     if mandate['validity_period_through']:
-        validity_period['through'] = mandate['validity_period_through'].strftime('%Y-%m-%d')
+        validity_period['through'] = mandate['validity_period_through'].strftime('%Y-%m-%d') if mandate['validity_period_through'] is not None else None
 
     mandate_data = {
         'links': links,
@@ -96,4 +87,34 @@ def serialize_mandate(representee, delegate, mandate, settings):
             if validity_period else {}),
     }
     return mandate_data
+
+
+def serialize_deleted_subdelegated_mandates(subdelegated_deleted_mandates, deleted_mandates, settings):
+    data_rows = [deleted for deleted in deleted_mandates if deleted['id'] in [sub['id'] for sub in subdelegated_deleted_mandates]]
+    deleted_sub_delegated_mandates = []
+    for item in data_rows:
+        validity_period = {
+            'from': item['validity_period_from'].strftime('%Y-%m-%d') if item['validity_period_from'] is not None else None,
+            'through': item['validity_period_through'].strftime('%Y-%m-%d') if item['validity_period_through'] is not None else None
+        }
+        validity_period = {k: v for k, v in validity_period.items() if v is not None}
+
+        sub_delegate = {
+            'type': item['delegate_type'],
+            'firstName': item['delegate_first_name'],
+            'surname': item['delegate_surname'],
+            'legalName': item['delegate_legal_name'],
+            'identifier': item['delegate_identifier']
+        }
+        sub_delegate = {k: v for k, v in sub_delegate.items() if v is not None}
+
+        mandate = {'subDelegate': sub_delegate}
+        if validity_period:
+            mandate['validityPeriod'] = validity_period
+        deleted_sub_delegated_mandates.append(mandate)
+
+    response_data = {
+        "deletedSubDelegatedMandates": deleted_sub_delegated_mandates
+    }
+    return response_data
 
