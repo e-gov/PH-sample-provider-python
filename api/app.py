@@ -1,12 +1,10 @@
 import os
 
-import psycopg2
 import yaml
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_swagger_ui import get_swaggerui_blueprint
 from sqlalchemy import create_engine
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import sessionmaker
 
 from api.enums import is_valid_action
@@ -20,8 +18,7 @@ from api.services import (create_mandate_pg, delete_mandate_pg,
                           extract_delegates_mandates, extract_mandate_data,
                           extract_mandate_subdelegate_data,
                           extract_representee_mandates, get_mandates,
-                          get_roles_pg, subdelegate_mandate_pg, delete_subdelegated_mandates_pg, get_person_pg,
-                          get_deleted_mandates)
+                          get_roles_pg, subdelegate_mandate_pg, delete_subdelegated_mandates_pg)
 from api.validators import (validate_add_mandate_payload,
                             validate_add_mandate_subdelegate_payload,
                             validate_person_company_code)
