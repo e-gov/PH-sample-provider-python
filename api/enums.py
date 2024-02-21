@@ -4,7 +4,6 @@ from enum import Enum
 class Action(Enum):
     DELETE_WITHDRAW = 'DELETE_WITHDRAW'
     DELETE_WAIVE = 'DELETE_WAIVE'
-    DELETE = 'DELETE'
 
 
 def is_valid_action(value):

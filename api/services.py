@@ -5,7 +5,13 @@ import psycopg2
 from sqlalchemy import text
 
 
-def get_mandates(db, representee_identifier=None, delegate_identifier=None, subdelegated_by_identifier=None):
+def get_mandates(
+        db,
+        representee_identifier=None,
+        delegate_identifier=None,
+        role_ns=None,
+        subdelegated_by_identifier=None
+):
     params = {
         'date_now': datetime.today()
     }
@@ -19,6 +25,10 @@ def get_mandates(db, representee_identifier=None, delegate_identifier=None, subd
     if delegate_identifier:
         where_conditions.append('delegate_identifier=:delegate_identifier')
         params['delegate_identifier'] = delegate_identifier
+
+    if role_ns:
+        where_conditions.append("role_ns=:role_ns")
+        params['role_ns'] = role_ns
 
     if subdelegated_by_identifier:
         where_conditions.append('subdelegated_by_identifier=:subdelegated_by_identifier')

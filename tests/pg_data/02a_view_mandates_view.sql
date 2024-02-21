@@ -2,6 +2,7 @@ CREATE OR REPLACE VIEW paasuke_mandates_view AS
 SELECT
     mandate.id,
     mandate.role,
+    split_part(mandate.role, ':', 1) AS role_ns,
     mandate.validity_period_from::DATE,
     mandate.validity_period_through::DATE,
     mandate.can_sub_delegate,
@@ -35,4 +36,6 @@ SELECT
 FROM mandate
 JOIN person AS delegate ON delegate.id = mandate.delegate_id
 JOIN person AS representee ON representee.id = mandate.representee_id
+LEFT JOIN mandate original_mandate ON original_mandate.id=mandate.original_mandate_id
+LEFT JOIN person subdelegated_by_person ON subdelegated_by_person.id = original_mandate.delegate_id
 WHERE mandate.deleted is NOT TRUE;

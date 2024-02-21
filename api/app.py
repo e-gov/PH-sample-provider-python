@@ -84,13 +84,22 @@ def create_app():
         return jsonify(base.to_dict()), 500
 
     @app.route('/v1/delegates/<string:delegate_identifier>/representees/mandates', methods=['GET'])
-    def get_delegates_representees_mandates(delegate_identifier):
+    def get_mandates_by_delegate(delegate_identifier):
         xroad_user_id = request.headers.get('X-Road-UserId')
         app.logger.info(f'X-Road-UserId: {xroad_user_id} Getting delegate mandates')
         error_config = app.config['SETTINGS']['errors']['legal_person_format_validation_failed']
         validate_person_company_code(delegate_identifier, error_config)
 
-        data_rows = get_mandates(db, delegate_identifier=delegate_identifier)
+        args = request.args
+        role_ns = args.get('ns')
+        subdelegated_by_identifier = args.get('subDelegatedBy')
+
+        data_rows = get_mandates(
+            db,
+            delegate_identifier=delegate_identifier,
+            role_ns=role_ns,
+            subdelegated_by_identifier=subdelegated_by_identifier
+        )
         if not data_rows:
             return make_success_response(data_rows, 200)
         delegate, representees = extract_delegates_mandates(data_rows)
@@ -98,13 +107,14 @@ def create_app():
         return make_success_response(response_data, 200)
 
     @app.route('/v1/representees/<string:representee_identifier>/delegates/mandates', methods=['GET'])
-    def get_representees_delegates_mandates(representee_identifier):
+    def get_mandates_by_representee(representee_identifier):
         xroad_user_id = request.headers.get('X-Road-UserId')
         app.logger.info(f'X-Road-UserId: {xroad_user_id} Getting representee mandates')
 
         args = request.args
-        subdelegated_by_identifier = args.get('subDelegatedBy')
         delegate_identifier = args.get('delegate')
+        role_ns = args.get('ns')
+        subdelegated_by_identifier = args.get('subDelegatedBy')
 
         error_config = app.config['SETTINGS']['errors']['legal_person_format_validation_failed']
         [
@@ -115,6 +125,7 @@ def create_app():
             db,
             representee_identifier=representee_identifier,
             delegate_identifier=delegate_identifier,
+            role_ns=role_ns,
             subdelegated_by_identifier=subdelegated_by_identifier
         )
         if not data_rows:
@@ -144,13 +155,10 @@ def create_app():
         db_uri = app.config['SQLALCHEMY_DATABASE_URI']
         try:
             create_mandate_pg(db_uri, data_to_insert)
-        except psycopg2.errors.RaiseException as e:
-            app.logger.exception(str(e))
+        except Exception as custom_exception:
+            app.logger.exception(str(custom_exception))
             error_config = app.config['SETTINGS']['errors']['unprocessable_request']
-            raise UnprocessableRequestError(
-                'Unprocessable request while creating mandate. Something went wrong.',
-                error_config
-            )
+            raise UnprocessableRequestError(str(custom_exception), error_config)
         return make_success_response([], 201)
 
     @app.route(
@@ -206,7 +214,6 @@ def create_app():
     )
     def post_subdelegate_mandate(representee_id, delegate_id, mandate_id):
         xroad_user_id = request.headers.get('X-Road-UserId')
-        xroad_represented_party = request.headers.get('X-Road-Represented-Party')
         app.logger.info(f'X-Road-UserId: {xroad_user_id} Creating subdelegate')
 
         data = request.json
@@ -224,13 +231,10 @@ def create_app():
         data_to_insert['data_created_by'] = xroad_user_id
         try:
             result = subdelegate_mandate_pg(app.config['SQLALCHEMY_DATABASE_URI'], data_to_insert)
-        except psycopg2.errors.RaiseException as e:
-            app.logger.exception(str(e))
+        except Exception as custom_exception:
+            app.logger.exception(str(custom_exception))
             error_config = app.config['SETTINGS']['errors']['unprocessable_request']
-            raise UnprocessableRequestError(
-                'Unprocessable request while subdelegating mandate. Something went wrong.',
-                error_config
-            )
+            raise UnprocessableRequestError(str(custom_exception), error_config)
         if not result:
             error_config = app.config['SETTINGS']['errors']['mandate_not_found']
             raise MandateNotFound('Mandate to delete was not found', error_config)
@@ -242,16 +246,15 @@ def create_app():
         roles_data = get_roles_pg(db)
         mapped = {
             'code': 'code',
-            'delegate_can_equal_to_representee': 'delegateCanEqualToRepresentee',
-            'modified': 'modified',
-            'validity_period_from_not_in_future': 'validityPeriodFromNotInFuture',
-            'validity_period_through_must_be_undefined': 'validityPeriodThroughMustBeUndefined',
-            'assignable_only_if_representee_has_role_in': 'assignableOnlyIfRepresenteeHasRoleIn',
+            'delegate_must_equal_to_representee': 'delegateMustEqualToRepresenteeOnAdd',
+            'addable_only_if_representee_has_role_in': 'addableOnlyIfRepresenteeHasRoleIn',
             'delegate_type': 'delegateType',
-            'can_sub_delegate': 'canSubDelegate',
+            'sub_delegable': 'subDelegable',
+            'sub_delegate_type': 'subDelegateType',
+            'sub_delegable_by': 'subDelegableBy',
+            'sub_delegating_must_be_signed': 'subDelegatingMustBeSigned',
             'addable_by': 'addableBy',
             'adding_must_be_signed': 'addingMustBeSigned',
-            'assignable_by': 'assignableBy',
             'waivable_by': 'waivableBy',
             'waiving_must_be_signed': 'waivingMustBeSigned',
             'withdrawable_by': 'withdrawableBy',
@@ -259,7 +262,10 @@ def create_app():
             'deletable_by': 'deletableBy',
             'deletable_by_delegate': 'deletableByDelegate',
             'representee_type': 'representeeType',
-            'visible': 'visible',
+            'hidden': 'hidden',
+            'representee_identifier_in': 'representeeIdentifierIn',
+            'validity_period_from_not_in_future': 'validityPeriodFromNotInFuture',
+            'validity_period_through_must_be_undefined': 'validityPeriodThroughMustBeUndefined'
         }
         for role in roles_data:
             role_item = {
