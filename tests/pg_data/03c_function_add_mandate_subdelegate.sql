@@ -38,6 +38,10 @@ BEGIN
         RAISE 'There is no mandate where id=% AND representee_id=% AND delegate_id=%', p_mandate_id, v_representee_id, v_delegate_id USING ERRCODE = '23002';
     end if;
 
+    IF rec_existing_mandate.deleted = TRUE THEN
+        RAISE 'Mandate to sub-delegate (id=%) has deleted=TRUE', p_mandate_id USING ERRCODE = '23002';
+    end if;
+
     IF rec_existing_mandate.can_sub_delegate = FALSE THEN
         RAISE 'Mandate to sub-delegate (id=%) has can_sub_delegate=FALSE', p_mandate_id USING ERRCODE = '23002';
     end if;

@@ -2,16 +2,16 @@
   "openapi": "3.0.0",
   "info": {
     "title": "X-road services consumed by Pääsuke",
-    "description": "<p>X-road services that are standardized by Pääsuke but offered by other parties (like Tax and Customs Board) and consumed by Pääsuke.</p><p>To download the API descriptions from the right menu choose either Export -&gt; Download API -&gt; YAML Resolved (or JSON Resolved) or you can export a server stub in your favourite programming language.</p>More info can be found at <a href=\"https://github.com/e-gov/PH/\">github.com/e-gov/PH</a>.",
+    "description": "<p>X-road service definitions that are standardized by Pääsuke but offered by other parties (like Tax and Customs Board) and consumed by Pääsuke.</p><p>To download the API descriptions from the right menu choose either Export -&gt; Download API -&gt; YAML Resolved (or JSON Resolved) or you can export a server stub in your favourite programming language.</p>More info can be found at <a href=\"https://github.com/e-gov/PH/\">github.com/e-gov/PH</a>.",
     "license": {
       "name": "Licensed under Apache 2.0 license",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "version": "0.9.9"
+    "version": "1.0.0"
   },
   "servers": [
     {
-      "url": "https://virtserver.swaggerhub.com/aasaru/x-road-services-consumed-by-paasuke/0.9.8",
+      "url": "https://virtserver.swaggerhub.com/aasaru/x-road-services-consumed-by-paasuke/1.0.0",
       "description": "SwaggerHub API Auto Mocking"
     }
   ],
@@ -20,7 +20,7 @@
       "get": {
         "summary": "List persons the delegate can represent. Mandates (roles) are included in the response.",
         "description": "",
-        "operationId": "getDelegateRepresenteesWithMandates",
+        "operationId": "getMandatesByDelegate",
         "parameters": [
           {
             "name": "delegate",
@@ -72,11 +72,27 @@
               "type": "string"
             },
             "example": "123e4567-e89b-12d3-a456-42661417400"
+          },
+          {
+            "name": "ns",
+            "in": "query",
+            "description": "Systems that only serve mandates from a single namespace can ignore this parameter.",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "example": "ANNUAL_REPORTS"
+              }
+            },
+            "example": "ANNUAL_REPORTS"
           }
         ],
         "responses": {
           "200": {
-            "description": "MandateTriplets that match query parameters. If there are no mandates to return for this representee or delegate then empty list should be returned. MandateTriplet consists of 3 parts&colon;\n<ol>\n  <li>representee (volitaja)</li>\n  <li>delegate (volitatu)</li>\n  <li>list of mandates that are currently valid or become valid in the future.</li></ol>\nProperties of a mandate:\n<ul>\n  <li><b>role</b></li>\n  <li><b>validityPeriod</b> - if this value is present it must have either validFrom, validThrough or both. If the valid through date is in the past the mandate must not be returned at all. The value of validThrough must be to the last date the mandate is valid (like 31.12.2029). If the mandate is valid indefinitely then validThrough must be omitted.</li>\n  <li><b>canSubDelegate</b> - if mandate can be further sub-delegated or not.</li>\n  <li><b>subDelegatorIdentifier</b> - precence of this value indicates that this mandate has been created by adding a sub-delegate to some other mandate. The value of this property indicates who was the delegate of the original mandate.</li>\n  </ul>\n",
+            "description": "MandateTriplets that match query parameters. If there are no mandates to return for this representee or delegate then empty list should be returned. MandateTriplet consists of 3 parts&colon;\n<ol>\n  <li>representee (volitaja)</li>\n  <li>delegate (volitatu)</li>\n  <li>list of mandates that are currently valid or become valid in the future.</li></ol>\nProperties of a mandate:\n<ul>\n  <li><b>role</b></li>\n  <li><b>validityPeriod</b> - if this value is present it must have either validFrom, validThrough or both. If the valid through date is in the past the mandate must not be returned at all. The value of validThrough must be to the last date the mandate is valid (like 31.12.2029). If the mandate is valid indefinitely then validThrough must be omitted.</li>\n  <li><b>subDelegable</b> - true if this mandate was created with the right to futher sub-delegate it, false otherwise.</li>\n  <li><b>subDelegatorIdentifier</b> - precence of this value indicates that this mandate has been created by adding a sub-delegate to some other mandate. The value of this property indicates who was the delegate of the original mandate.</li>\n  </ul>\n",
             "content": {
               "application/json": {
                 "schema": {
@@ -105,12 +121,21 @@
                           "from": "2017-07-21",
                           "through": "2028-12-31"
                         },
+                        "subDelegable": false,
                         "subDelegatorIdentifier": "EE12345678",
                         "links": {
                           "delete": "/v1/nss/EMTA/representees/int-EE12345678/delegates/int-EE38302250123/mandates/int-mandate-123",
                           "addSubDelegate": "/v1/nss/EMTA/representees/int-EE12345678/delegates/int-EE38302250123/mandates/int-mandate-123/subdelegates",
                           "origin": "https://vaarikas.emta.ee/view/int-mandate-123"
                         }
+                      },
+                      {
+                        "role": "PAASUKE_EXTERNAL:PRIA:unrestricted",
+                        "validityPeriod": {
+                          "from": "2017-07-21",
+                          "through": "2028-12-31"
+                        },
+                        "hidden": true
                       }
                     ]
                   }
@@ -131,7 +156,7 @@
       "get": {
         "summary": "List delegates who have any mandates that are currently valid or become valid in the future.",
         "description": "",
-        "operationId": "getRepresenteeDelegatesWithMandates",
+        "operationId": "getMandatesByRepresentee",
         "parameters": [
           {
             "name": "representee",
@@ -156,6 +181,22 @@
               "type": "string"
             },
             "example": "EE10391132"
+          },
+          {
+            "name": "ns",
+            "in": "query",
+            "description": "Only return mandates with specified namespace. Systems that only serve mandates from a single namespace can ignore this parameter.",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "example": "BR_REPRIGHT"
+              }
+            },
+            "example": "ANNUAL_REPORTS"
           },
           {
             "name": "subDelegatedBy",
@@ -199,7 +240,7 @@
         ],
         "responses": {
           "200": {
-            "description": "MandateTriplets that match query parameters. If there are no mandates to return for this representee or delegate then empty list should be returned. MandateTriplet consists of 3 parts&colon;\n<ol>\n  <li>representee (volitaja)</li>\n  <li>delegate (volitatu)</li>\n  <li>list of mandates that are currently valid or become valid in the future.</li></ol>\nProperties of a mandate:\n<ul>\n  <li><b>role</b></li>\n  <li><b>validityPeriod</b> - if this value is present it must have either validFrom, validThrough or both. If the valid through date is in the past the mandate must not be returned at all. The value of validThrough must be to the last date the mandate is valid (like 31.12.2029). If the mandate is valid indefinitely then validThrough must be omitted.</li>\n  <li><b>canSubDelegate</b> - if mandate can be further sub-delegated or not.</li>\n  <li><b>subDelegatorIdentifier</b> - precence of this value indicates that this mandate has been created by adding a sub-delegate to some other mandate. The value of this property indicates who was the delegate of the original mandate.</li>\n  </ul>\n",
+            "description": "MandateTriplets that match query parameters. If there are no mandates to return for this representee or delegate then empty list should be returned. MandateTriplet consists of 3 parts&colon;\n<ol>\n  <li>representee (volitaja)</li>\n  <li>delegate (volitatu)</li>\n  <li>list of mandates that are currently valid or become valid in the future.</li></ol>\nProperties of a mandate:\n<ul>\n  <li><b>role</b></li>\n  <li><b>validityPeriod</b> - if this value is present it must have either validFrom, validThrough or both. If the valid through date is in the past the mandate must not be returned at all. The value of validThrough must be to the last date the mandate is valid (like 31.12.2029). If the mandate is valid indefinitely then validThrough must be omitted.</li>\n  <li><b>subDelegable</b> - true if this mandate was created with the right to futher sub-delegate it, false otherwise.</li>\n  <li><b>subDelegatorIdentifier</b> - precence of this value indicates that this mandate has been created by adding a sub-delegate to some other mandate. The value of this property indicates who was the delegate of the original mandate.</li>\n  </ul>\n",
             "content": {
               "application/json": {
                 "schema": {
@@ -228,12 +269,21 @@
                           "from": "2017-07-21",
                           "through": "2028-12-31"
                         },
+                        "subDelegable": false,
                         "subDelegatorIdentifier": "EE12345678",
                         "links": {
                           "delete": "/v1/nss/EMTA/representees/int-EE12345678/delegates/int-EE38302250123/mandates/int-mandate-123",
                           "addSubDelegate": "/v1/nss/EMTA/representees/int-EE12345678/delegates/int-EE38302250123/mandates/int-mandate-123/subdelegates",
                           "origin": "https://vaarikas.emta.ee/view/int-mandate-123"
                         }
+                      },
+                      {
+                        "role": "PAASUKE_EXTERNAL:PRIA:unrestricted",
+                        "validityPeriod": {
+                          "from": "2017-07-21",
+                          "through": "2028-12-31"
+                        },
+                        "hidden": true
                       }
                     ]
                   }
@@ -384,7 +434,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "EE10391131"
+            "example": 1236
           },
           {
             "name": "delegateId",
@@ -396,7 +446,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "EE38302250123"
+            "example": 4567
           },
           {
             "name": "mandateId",
@@ -494,7 +544,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "EE12345678-123"
+            "example": 100548
           },
           {
             "name": "delegateId",
@@ -624,7 +674,7 @@
         ],
         "responses": {
           "200": {
-            "description": "<p>RoleDefinitions can have following parameters (mandatory parameters are marked with *)</p>\n<p><b>code*</b> - Unique identifier of the role. The prefix until the first colon is called the role namespace. Max length 4000 characters.</p>\n<p><b>title*</b> - Role title in different languages.</p>\n<p><b>delegateType*</b> -  Type of persons this role can be assigned to. Setting delegateType only to LEGAL_PERSON is meant to be used for machine-to-machine roles. For example EMTA has a role \"Käibedeklaratsiooni (KMD) andmete saatmine masin-masin liidese vahendusel (code XT_MM_KMD)\"./p>\n<p><b>representeeType*</b> - Type of representees who can add a mandate with this role.</p>\n<p><b>addableBy</b> - In order to add a mandate with this role the user representing the representee must have a valid mandate with a role in this list. If the value is empty or null, this role cannot be assigned from Pääsuke.</p>\n<p><b>addableOnlyIfRepresenteeHasRoleIn</b> - Defining this list is used in rare cases where in order to assign the role, the representee also must have at least one mandate with a role in this list. For example to add some PRIA role the user representing the representee must have a role in the addableBy list and the representee must have the role \"PRIA:PRIA.customer\"</p>\n<p><b>addingMustBeSigned</b> - If this is set as true then the user adding a mandate with this role needs to digitally sign it.</p>\n <p><b>subDelegatingMustBeSigned</b> - If this is set as true and the user is adding a sub-delegate for a mandate with this role then the user needs to digitally sign it.</p>\n<p><b>delegateCanEqualToRepresentee</b> - If this is set to true then in the Pääsuke Admin Portal it is possible to create mandates with this role where the value of the representee equals the value of the delegate. This functionality is used for the eesti.ee RR partner services. These types of roles where representee=delegate can only be added and deleted from the Admin portal (so in eesti.ee they are displayed as read-only).</p>\n<p><b>description</b> - Role description in different languages. If the description is provided it must have at least the description translation in Estonian.</p>\n<p><b>hidden</b> - Mandates with hidden roles are not shown in Pääsuke UI. A hidden role is a method to add extra information about the person. For example, we could create a role AA with property addableBy=BB, hidden=false. Now we can create hidden role BB and we can add a mandate with the role BB to persons who are allowed to add role AA. False by default. If hidden is set to true then all of the role properties are ignored.</p>\n<p><b>validityPeriodFromNotInFuture</b> - If true then Pääsuke UI restricts setting validityPeriod.from into the future when adding a new mandate. If adding a sub-delegate is allowed then this check is also applied when adding a sub-delegate.</p>\n<p><b>validityPeriodThroughMustBeUndefined</b> - If true then Pääsuke UI forces setting validityPeriod.through to infinity. If adding a sub-delegate is allowed then this check is also applied when adding a sub-delegate.</p>\n<p><b>subDelegable</b> - System checks this value during adding a mandate. Possible values:<ul>\n      <li>\"NO\" - a mandate with this role can not be added with the right to further sub-delegate it.</li>\n      <li>\"YES\" - the system forces the user to add new mandates with this role with the right to further sub-delegate them.</li>\n      <li>\"ASK\" - the user chan choose during adding if further sub-delegating is allowed or not.</li>\n      <li>\"LEGAL_PERSON_YES__NATURAL_PERSON_ASK\" - If delegate is a legal person then system forces the user to allow further sub-delegating the mandate. If delegate is a natural person then the user can choose if further sub-delegating the mandate is allowed.</li>\n      <li>\"LEGAL_PERSON_YES__NATURAL_PERSON_NO\" - If delegate is a legal person then system forces the user to allow further sub-delegating the mandate. If delegate is a natural person then the user cannot add the mandate with the right to further sub-delegate it.</li>\n    </ul></p>\n<p><b>subDelegateType</b> - Type of persons this role can be sub-delegated to. This should have a value if subDelegable != 'NO' and normally (except in rare corner cases) the value will be NATURAL_PERSON.</p>\n<p><b>subDelegableBy</b> - In order to add a sub-delegate for a mandate with this role the user representing the delegate must have a valid mandate with a role in this list. This should have a value if subDelegable != 'NO'.</p>\n<p><b>waivableBy</b> - The user representing the delegate must have a valid mandate with a role in the list to waive this mandate from the delegate side (volitusest loobumine). If this is set to null or to an empty list then this mandate cannot be waived.</p>\n<p><b>waivingMustBeSigned</b> - If this is set true then the delegate has to digitally sign when the delegate (volituse saaja) wants to waive the mandate (volitusest loobumine).</p>\n<p><b>withdrawableBy</b> - The user representing the representee must have a mandate with a role in the list to withdraw this mandate from the representee side (volituse tagasivõtmine). This should have a value if subDelegable != 'NO'.</p>\n<p><b>withdrawalMustBeSigned</b> - If this is set true then the representee (or the person representing the representee) has to digitally sign when he wants to withdraw the mandate (volituse tagasivõtmine).</p>\n<p><b>representeeIdentifierIn</b> - New mandates with this role code can only be created for representees in this list. This parameter only has an effect if it is not null and not empty.</p>\n",
+            "description": "<p>RoleDefinitions can have following parameters (mandatory parameters are marked with *)</p>\n<p><b>code*</b> - Unique identifier of the role. The prefix until the first colon is called the role namespace. Max length 4000 characters.</p>\n<p><b>title*</b> - Role title in different languages.</p>\n<p><b>description</b> - Role description in different languages. If the description is provided it must have at least the description translation in Estonian.</p>\n<p><b>delegateType*</b> -  Type of persons this role can be assigned to. Setting delegateType only to LEGAL_PERSON is meant to be used for machine-to-machine roles. For example EMTA has a role \"Käibedeklaratsiooni (KMD) andmete saatmine masin-masin liidese vahendusel (code XT_MM_KMD)\"./p>\n<p><b>representeeType*</b> - Type of representees who can add a mandate with this role.</p>\n<p><b>addableBy</b> - In order to add a mandate with this role the user representing the representee must have a valid mandate with a role in this list. If the value is empty or null, this role cannot be assigned from Pääsuke.</p>\n<p><b>addingMustBeSigned</b> - If this is set as true then the user adding a mandate with this role needs to digitally sign it.</p>\n\n<p><b>subDelegable</b> - System checks this value during adding a mandate. Possible values:<ul>\n      <li>\"NO\" - a mandate with this role can not be added with the right to further sub-delegate it.</li>\n      <li>\"YES\" - the system forces the user to add new mandates with this role with the right to further sub-delegate them.</li>\n      <li>\"ASK\" - the user chan choose during adding if further sub-delegating is allowed or not.</li>\n      <li>\"LEGAL_PERSON_YES__NATURAL_PERSON_ASK\" - If delegate is a legal person then system forces the user to allow further sub-delegating the mandate. If delegate is a natural person then the user can choose if further sub-delegating the mandate is allowed.</li>\n      <li>\"LEGAL_PERSON_YES__NATURAL_PERSON_NO\" - If delegate is a legal person then system forces the user to allow further sub-delegating the mandate. If delegate is a natural person then the user cannot add the mandate with the right to further sub-delegate it.</li>\n    </ul></p>\n<p><b>subDelegateType</b> - Type of persons this role can be sub-delegated to. This should have a value if subDelegable != 'NO' and normally (except in rare corner cases) the value will be NATURAL_PERSON.</p>\n<p><b>subDelegableBy</b> - In order to add a sub-delegate for a mandate with this role or to withdraw a sub-delegated mandate the user representing the delegate of this mandate must have a valid mandate with a role in this list. This should have a value if subDelegable != 'NO'.</p>\n<p><b>subDelegatingMustBeSigned</b> - If this is set as true and the user is adding a sub-delegate for a mandate with this role then the user needs to digitally sign it.</p>\n<p><b>waivableBy</b> - The user representing the delegate must have a valid mandate with a role in the list to waive this mandate from the delegate side (volitusest loobumine). If this is set to null or to an empty list then this mandate cannot be waived.</p>\n<p><b>waivingMustBeSigned</b> - If this is set true then the delegate has to digitally sign when the delegate (volituse saaja) wants to waive the mandate (volitusest loobumine).</p>\n\n<p><b>withdrawableBy</b> - The user representing the representee must have a mandate with a role in the list to withdraw this mandate from the representee side (volituse tagasivõtmine). This should have a value if subDelegable != 'NO'.</p>\n<p><b>withdrawalMustBeSigned</b> - If this is set true then the representee (or the person representing the representee) has to digitally sign when he wants to withdraw the mandate (volituse tagasivõtmine).</p>\n\n<h3>Configuration parameters for specific use-cases</h3>\n<p><i>Normally configuring these parameters is not needed and can be left empty (or false for booleans).</i></p>\n<p><b>addableOnlyIfRepresenteeHasRoleIn</b> - Defining this list is used in rare cases where in order to assign the role, the representee also must have at least one mandate with a role in this list. For example to add some PRIA role the user representing the representee must have a role in the addableBy list and the representee must have the role \"PRIA:PRIA.customer\"</p>\n<p><b>delegateMustEqualToRepresenteeOnAdd</b> - If this is set to true then only the administrator can create the initial mandate and the legal person can sub-delegate it further (to its employees). This parameter is for use-cases where not anyone has the right to use the service but administrator adds the initial mandate that can be further sub-delegated. For such mandates the subDelegable must be set to YES.</p>\n<p><b>hidden</b> - Mandates with hidden roles are not shown in Pääsuke UI. A hidden role is a method to add extra information about the person. For example, we could create a role AA with property addableBy=BB, hidden=false. Now we can create hidden role BB and we can add a mandate with the role BB to persons who are allowed to add role AA. False by default. If hidden is set to true then all of the role properties are ignored.</p>\n<p><b>representeeIdentifierIn</b> - New mandates with this role code can only be created for representees in this list. This parameter only has an effect if it is not null and not empty.</p>\n<p><b>validityPeriodFromNotInFuture</b> - If true then Pääsuke UI restricts setting validityPeriod.from into the future when adding a new mandate. If adding a sub-delegate is allowed then this check is also applied when adding a sub-delegate.</p>\n<p><b>validityPeriodThroughMustBeUndefined</b> - If true then Pääsuke UI forces setting validityPeriod.through to infinity. If adding a sub-delegate is allowed then this check is also applied when adding a sub-delegate.</p>\n",
             "content": {
               "application/json": {
                 "schema": {
@@ -734,6 +784,10 @@
           "links": {
             "$ref": "#/components/schemas/MandateLinks"
           },
+          "subDelegable": {
+            "type": "boolean",
+            "description": "True if this mandate was created with the right to futher sub-delegate it."
+          },
           "subDelegatorIdentifier": {
             "type": "string",
             "description": "Identifier of the person who created this mandate through sub-delegation.",
@@ -756,7 +810,8 @@
             "format": "date",
             "example": "2030-12-31"
           }
-        }
+        },
+        "description": "Planned validity period of the mandate."
       },
       "MandateLinks": {
         "type": "object",
@@ -950,12 +1005,11 @@
         "properties": {
           "action": {
             "type": "string",
-            "description": "If the person who gave the mandate (representee) is ending the validity of the mandate then the action is set to 'DELETE_WITHDRAW'. If the mandate is being ended by the person who was the delegate of the mandate then the action is set to 'DELETE_WAIVE'. Until version 0.9.4 the value was always set to 'DELETE'. This option is in the list of actions for backwards compatibility.",
+            "description": "If the person who gave the mandate (representee) is ending the validity of the mandate then the action is set to 'DELETE_WITHDRAW'. If the mandate is being ended by the person who was the delegate of the mandate then the action is set to 'DELETE_WAIVE'.",
             "example": "DELETE_WITHDRAW",
             "enum": [
               "DELETE_WITHDRAW",
-              "DELETE_WAIVE",
-              "DELETE"
+              "DELETE_WAIVE"
             ]
           },
           "authorizations": {
@@ -980,7 +1034,7 @@
             "$ref": "#/components/schemas/ValidityPeriod"
           }
         },
-        "description": "When withdrawing/waiving a mandate that has been further sub-delegated the sub-delegated mandates must also be deleted toghether with the original mandate. This object is used to return information about a sub-delegated mandate that was deleted automatically. Field <b>subDelegate</b> is the person the mandate was sub-delegated to. Field <b>validityPeriod</b> is the actual period that the sub-delegated mandate was valid."
+        "description": "When withdrawing/waiving a mandate that has been further sub-delegated the sub-delegated mandates must also be deleted toghether with the original mandate. This object is used to return information about a sub-delegated mandate that was deleted automatically. Field <b>subDelegate</b> is the person the mandate was sub-delegated to. Field <b>validityPeriod</b> is the planned validity period of the mandate"
       },
       "RoleDefinition": {
         "required": [
@@ -1038,9 +1092,9 @@
               ]
             }
           },
-          "delegateCanEqualToRepresentee": {
+          "delegateMustEqualToRepresenteeOnAdd": {
             "type": "boolean",
-            "description": "If this is set to true then in the Pääsuke Admin Portal it is possible to create mandates with this role where the value of the representee equals the value of the delegate. This functionality is used for the eesti.ee RR partner services. These types of roles where representee=delegate can only be added and deleted from the Admin portal (so in eesti.ee they are displayed as read-only)."
+            "description": "If this is set to true then only the administrator can create the initial mandate and the legal person can sub-delegate it further (to its employees). This parameter is for use-cases where not anyone has the right to use the service but administrator adds the initial mandate that can be further sub-delegated. For such mandates the subDelegable must be set to YES."
           },
           "description": {
             "$ref": "#/components/schemas/Translation"
@@ -1100,7 +1154,7 @@
           },
           "subDelegableBy": {
             "type": "array",
-            "description": "In order to add a sub-delegate for a mandate with this role the user representing the delegate must have a valid mandate with a role in this list. Defaults to addableBy.",
+            "description": "In order to add a sub-delegate for a mandate with this role or to withdraw a sub-delegated mandate the user representing the delegate of this mandate must have a valid mandate with a role in this list. This should have a value if subDelegable != 'NO'",
             "example": [
               "BR_REPRIGHT:SOLEREP",
               "EMTA:I"
@@ -1169,7 +1223,7 @@
     },
     "responses": {
       "MandateTriplets": {
-        "description": "MandateTriplets that match query parameters. If there are no mandates to return for this representee or delegate then empty list should be returned. MandateTriplet consists of 3 parts&colon;\n<ol>\n  <li>representee (volitaja)</li>\n  <li>delegate (volitatu)</li>\n  <li>list of mandates that are currently valid or become valid in the future.</li></ol>\nProperties of a mandate:\n<ul>\n  <li><b>role</b></li>\n  <li><b>validityPeriod</b> - if this value is present it must have either validFrom, validThrough or both. If the valid through date is in the past the mandate must not be returned at all. The value of validThrough must be to the last date the mandate is valid (like 31.12.2029). If the mandate is valid indefinitely then validThrough must be omitted.</li>\n  <li><b>canSubDelegate</b> - if mandate can be further sub-delegated or not.</li>\n  <li><b>subDelegatorIdentifier</b> - precence of this value indicates that this mandate has been created by adding a sub-delegate to some other mandate. The value of this property indicates who was the delegate of the original mandate.</li>\n  </ul>\n",
+        "description": "MandateTriplets that match query parameters. If there are no mandates to return for this representee or delegate then empty list should be returned. MandateTriplet consists of 3 parts&colon;\n<ol>\n  <li>representee (volitaja)</li>\n  <li>delegate (volitatu)</li>\n  <li>list of mandates that are currently valid or become valid in the future.</li></ol>\nProperties of a mandate:\n<ul>\n  <li><b>role</b></li>\n  <li><b>validityPeriod</b> - if this value is present it must have either validFrom, validThrough or both. If the valid through date is in the past the mandate must not be returned at all. The value of validThrough must be to the last date the mandate is valid (like 31.12.2029). If the mandate is valid indefinitely then validThrough must be omitted.</li>\n  <li><b>subDelegable</b> - true if this mandate was created with the right to futher sub-delegate it, false otherwise.</li>\n  <li><b>subDelegatorIdentifier</b> - precence of this value indicates that this mandate has been created by adding a sub-delegate to some other mandate. The value of this property indicates who was the delegate of the original mandate.</li>\n  </ul>\n",
         "content": {
           "application/json": {
             "schema": {
@@ -1198,12 +1252,21 @@
                       "from": "2017-07-21",
                       "through": "2028-12-31"
                     },
+                    "subDelegable": false,
                     "subDelegatorIdentifier": "EE12345678",
                     "links": {
                       "delete": "/v1/nss/EMTA/representees/int-EE12345678/delegates/int-EE38302250123/mandates/int-mandate-123",
                       "addSubDelegate": "/v1/nss/EMTA/representees/int-EE12345678/delegates/int-EE38302250123/mandates/int-mandate-123/subdelegates",
                       "origin": "https://vaarikas.emta.ee/view/int-mandate-123"
                     }
+                  },
+                  {
+                    "role": "PAASUKE_EXTERNAL:PRIA:unrestricted",
+                    "validityPeriod": {
+                      "from": "2017-07-21",
+                      "through": "2028-12-31"
+                    },
+                    "hidden": true
                   }
                 ]
               }
@@ -1222,7 +1285,7 @@
         }
       },
       "RoleDefinitions": {
-        "description": "<p>RoleDefinitions can have following parameters (mandatory parameters are marked with *)</p>\n<p><b>code*</b> - Unique identifier of the role. The prefix until the first colon is called the role namespace. Max length 4000 characters.</p>\n<p><b>title*</b> - Role title in different languages.</p>\n<p><b>delegateType*</b> -  Type of persons this role can be assigned to. Setting delegateType only to LEGAL_PERSON is meant to be used for machine-to-machine roles. For example EMTA has a role \"Käibedeklaratsiooni (KMD) andmete saatmine masin-masin liidese vahendusel (code XT_MM_KMD)\"./p>\n<p><b>representeeType*</b> - Type of representees who can add a mandate with this role.</p>\n<p><b>addableBy</b> - In order to add a mandate with this role the user representing the representee must have a valid mandate with a role in this list. If the value is empty or null, this role cannot be assigned from Pääsuke.</p>\n<p><b>addableOnlyIfRepresenteeHasRoleIn</b> - Defining this list is used in rare cases where in order to assign the role, the representee also must have at least one mandate with a role in this list. For example to add some PRIA role the user representing the representee must have a role in the addableBy list and the representee must have the role \"PRIA:PRIA.customer\"</p>\n<p><b>addingMustBeSigned</b> - If this is set as true then the user adding a mandate with this role needs to digitally sign it.</p>\n <p><b>subDelegatingMustBeSigned</b> - If this is set as true and the user is adding a sub-delegate for a mandate with this role then the user needs to digitally sign it.</p>\n<p><b>delegateCanEqualToRepresentee</b> - If this is set to true then in the Pääsuke Admin Portal it is possible to create mandates with this role where the value of the representee equals the value of the delegate. This functionality is used for the eesti.ee RR partner services. These types of roles where representee=delegate can only be added and deleted from the Admin portal (so in eesti.ee they are displayed as read-only).</p>\n<p><b>description</b> - Role description in different languages. If the description is provided it must have at least the description translation in Estonian.</p>\n<p><b>hidden</b> - Mandates with hidden roles are not shown in Pääsuke UI. A hidden role is a method to add extra information about the person. For example, we could create a role AA with property addableBy=BB, hidden=false. Now we can create hidden role BB and we can add a mandate with the role BB to persons who are allowed to add role AA. False by default. If hidden is set to true then all of the role properties are ignored.</p>\n<p><b>validityPeriodFromNotInFuture</b> - If true then Pääsuke UI restricts setting validityPeriod.from into the future when adding a new mandate. If adding a sub-delegate is allowed then this check is also applied when adding a sub-delegate.</p>\n<p><b>validityPeriodThroughMustBeUndefined</b> - If true then Pääsuke UI forces setting validityPeriod.through to infinity. If adding a sub-delegate is allowed then this check is also applied when adding a sub-delegate.</p>\n<p><b>subDelegable</b> - System checks this value during adding a mandate. Possible values:<ul>\n      <li>\"NO\" - a mandate with this role can not be added with the right to further sub-delegate it.</li>\n      <li>\"YES\" - the system forces the user to add new mandates with this role with the right to further sub-delegate them.</li>\n      <li>\"ASK\" - the user chan choose during adding if further sub-delegating is allowed or not.</li>\n      <li>\"LEGAL_PERSON_YES__NATURAL_PERSON_ASK\" - If delegate is a legal person then system forces the user to allow further sub-delegating the mandate. If delegate is a natural person then the user can choose if further sub-delegating the mandate is allowed.</li>\n      <li>\"LEGAL_PERSON_YES__NATURAL_PERSON_NO\" - If delegate is a legal person then system forces the user to allow further sub-delegating the mandate. If delegate is a natural person then the user cannot add the mandate with the right to further sub-delegate it.</li>\n    </ul></p>\n<p><b>subDelegateType</b> - Type of persons this role can be sub-delegated to. This should have a value if subDelegable != 'NO' and normally (except in rare corner cases) the value will be NATURAL_PERSON.</p>\n<p><b>subDelegableBy</b> - In order to add a sub-delegate for a mandate with this role the user representing the delegate must have a valid mandate with a role in this list. This should have a value if subDelegable != 'NO'.</p>\n<p><b>waivableBy</b> - The user representing the delegate must have a valid mandate with a role in the list to waive this mandate from the delegate side (volitusest loobumine). If this is set to null or to an empty list then this mandate cannot be waived.</p>\n<p><b>waivingMustBeSigned</b> - If this is set true then the delegate has to digitally sign when the delegate (volituse saaja) wants to waive the mandate (volitusest loobumine).</p>\n<p><b>withdrawableBy</b> - The user representing the representee must have a mandate with a role in the list to withdraw this mandate from the representee side (volituse tagasivõtmine). This should have a value if subDelegable != 'NO'.</p>\n<p><b>withdrawalMustBeSigned</b> - If this is set true then the representee (or the person representing the representee) has to digitally sign when he wants to withdraw the mandate (volituse tagasivõtmine).</p>\n<p><b>representeeIdentifierIn</b> - New mandates with this role code can only be created for representees in this list. This parameter only has an effect if it is not null and not empty.</p>\n",
+        "description": "<p>RoleDefinitions can have following parameters (mandatory parameters are marked with *)</p>\n<p><b>code*</b> - Unique identifier of the role. The prefix until the first colon is called the role namespace. Max length 4000 characters.</p>\n<p><b>title*</b> - Role title in different languages.</p>\n<p><b>description</b> - Role description in different languages. If the description is provided it must have at least the description translation in Estonian.</p>\n<p><b>delegateType*</b> -  Type of persons this role can be assigned to. Setting delegateType only to LEGAL_PERSON is meant to be used for machine-to-machine roles. For example EMTA has a role \"Käibedeklaratsiooni (KMD) andmete saatmine masin-masin liidese vahendusel (code XT_MM_KMD)\"./p>\n<p><b>representeeType*</b> - Type of representees who can add a mandate with this role.</p>\n<p><b>addableBy</b> - In order to add a mandate with this role the user representing the representee must have a valid mandate with a role in this list. If the value is empty or null, this role cannot be assigned from Pääsuke.</p>\n<p><b>addingMustBeSigned</b> - If this is set as true then the user adding a mandate with this role needs to digitally sign it.</p>\n\n<p><b>subDelegable</b> - System checks this value during adding a mandate. Possible values:<ul>\n      <li>\"NO\" - a mandate with this role can not be added with the right to further sub-delegate it.</li>\n      <li>\"YES\" - the system forces the user to add new mandates with this role with the right to further sub-delegate them.</li>\n      <li>\"ASK\" - the user chan choose during adding if further sub-delegating is allowed or not.</li>\n      <li>\"LEGAL_PERSON_YES__NATURAL_PERSON_ASK\" - If delegate is a legal person then system forces the user to allow further sub-delegating the mandate. If delegate is a natural person then the user can choose if further sub-delegating the mandate is allowed.</li>\n      <li>\"LEGAL_PERSON_YES__NATURAL_PERSON_NO\" - If delegate is a legal person then system forces the user to allow further sub-delegating the mandate. If delegate is a natural person then the user cannot add the mandate with the right to further sub-delegate it.</li>\n    </ul></p>\n<p><b>subDelegateType</b> - Type of persons this role can be sub-delegated to. This should have a value if subDelegable != 'NO' and normally (except in rare corner cases) the value will be NATURAL_PERSON.</p>\n<p><b>subDelegableBy</b> - In order to add a sub-delegate for a mandate with this role or to withdraw a sub-delegated mandate the user representing the delegate of this mandate must have a valid mandate with a role in this list. This should have a value if subDelegable != 'NO'.</p>\n<p><b>subDelegatingMustBeSigned</b> - If this is set as true and the user is adding a sub-delegate for a mandate with this role then the user needs to digitally sign it.</p>\n<p><b>waivableBy</b> - The user representing the delegate must have a valid mandate with a role in the list to waive this mandate from the delegate side (volitusest loobumine). If this is set to null or to an empty list then this mandate cannot be waived.</p>\n<p><b>waivingMustBeSigned</b> - If this is set true then the delegate has to digitally sign when the delegate (volituse saaja) wants to waive the mandate (volitusest loobumine).</p>\n\n<p><b>withdrawableBy</b> - The user representing the representee must have a mandate with a role in the list to withdraw this mandate from the representee side (volituse tagasivõtmine). This should have a value if subDelegable != 'NO'.</p>\n<p><b>withdrawalMustBeSigned</b> - If this is set true then the representee (or the person representing the representee) has to digitally sign when he wants to withdraw the mandate (volituse tagasivõtmine).</p>\n\n<h3>Configuration parameters for specific use-cases</h3>\n<p><i>Normally configuring these parameters is not needed and can be left empty (or false for booleans).</i></p>\n<p><b>addableOnlyIfRepresenteeHasRoleIn</b> - Defining this list is used in rare cases where in order to assign the role, the representee also must have at least one mandate with a role in this list. For example to add some PRIA role the user representing the representee must have a role in the addableBy list and the representee must have the role \"PRIA:PRIA.customer\"</p>\n<p><b>delegateMustEqualToRepresenteeOnAdd</b> - If this is set to true then only the administrator can create the initial mandate and the legal person can sub-delegate it further (to its employees). This parameter is for use-cases where not anyone has the right to use the service but administrator adds the initial mandate that can be further sub-delegated. For such mandates the subDelegable must be set to YES.</p>\n<p><b>hidden</b> - Mandates with hidden roles are not shown in Pääsuke UI. A hidden role is a method to add extra information about the person. For example, we could create a role AA with property addableBy=BB, hidden=false. Now we can create hidden role BB and we can add a mandate with the role BB to persons who are allowed to add role AA. False by default. If hidden is set to true then all of the role properties are ignored.</p>\n<p><b>representeeIdentifierIn</b> - New mandates with this role code can only be created for representees in this list. This parameter only has an effect if it is not null and not empty.</p>\n<p><b>validityPeriodFromNotInFuture</b> - If true then Pääsuke UI restricts setting validityPeriod.from into the future when adding a new mandate. If adding a sub-delegate is allowed then this check is also applied when adding a sub-delegate.</p>\n<p><b>validityPeriodThroughMustBeUndefined</b> - If true then Pääsuke UI forces setting validityPeriod.through to infinity. If adding a sub-delegate is allowed then this check is also applied when adding a sub-delegate.</p>\n",
         "content": {
           "application/json": {
             "schema": {

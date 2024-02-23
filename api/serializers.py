@@ -81,6 +81,7 @@ def serialize_mandate(representee, delegate, mandate, settings):
     mandate_data = {
         'links': links,
         'role': mandate['role'],
+        'subDelegable': mandate['can_sub_delegate'],
         **({'subDelegatorIdentifier': mandate['subdelegated_by_identifier']}
             if mandate['subdelegated_by_identifier'] else {}),
         **({'validityPeriod': validity_period}
