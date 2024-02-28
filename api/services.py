@@ -274,7 +274,7 @@ def create_mandate_pg(uri, data):
             data['mandate_role'],
             data['mandate_validity_period_from'],
             data['mandate_validity_period_through'],
-            data['mandate_can_sub_delegate'],
+            'YES' if data['mandate_can_sub_delegate'] else 'NO',
             data['data_created_by'],
             data['document_uuid'],
             data['data_can_display_document_to_delegate']
