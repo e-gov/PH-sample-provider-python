@@ -40,8 +40,8 @@ BEGIN
     end if;
 
 
-    IF p_can_sub_delegate = TRUE AND rec_role_conf.can_sub_delegate = FALSE THEN
-        RAISE 'The role with code=% is defined with can_sub_delegate=FALSE but mandate to be added has it true', p_role USING ERRCODE = '23011';
+    IF p_can_sub_delegate = TRUE AND rec_role_conf.sub_delegable = 'NO' THEN
+        RAISE 'The role with code=% is defined with sub_delegable=NO but mandate to be added has it true', p_role USING ERRCODE = '23011';
     end if;
 
     -- Insert or update person record corresponding to representee
