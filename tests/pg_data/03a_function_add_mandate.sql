@@ -14,7 +14,7 @@ CREATE OR REPLACE FUNCTION paasuke_add_mandate(
     p_role TEXT,
     p_validity_period_from DATE,
     p_validity_period_through DATE,
-    p_sub_delegable TEXT,
+    p_can_sub_delegate BOOLEAN,
     p_created_by TEXT,
     p_document_uuid TEXT,
     p_can_display_document_to_delegate BOOLEAN
@@ -40,8 +40,8 @@ BEGIN
     end if;
 
 
-    IF p_sub_delegable = 'YES' AND rec_role_conf.sub_delegable = 'NO' THEN
-        RAISE 'The role with code=% is defined with sub_delegable=NO', p_role USING ERRCODE = '23011';
+    IF p_can_sub_delegate = TRUE AND rec_role_conf.sub_delegable = 'NO' THEN
+        RAISE 'The role with code=% is defined with sub_delegable=NO but mandate to be added has it true', p_role USING ERRCODE = '23011';
     end if;
 
     -- Insert or update person record corresponding to representee
@@ -67,6 +67,6 @@ BEGIN
     INSERT INTO mandate (representee_id, delegate_id, role, validity_period_from, validity_period_through,
                          can_sub_delegate, created_by)
     VALUES (v_representee_id, v_delegate_id, p_role, p_validity_period_from::DATE, p_validity_period_through::DATE,
-            p_sub_delegable, p_created_by);
+            p_can_sub_delegate, p_created_by);
 END;
 $$ LANGUAGE PLPGSQL;
